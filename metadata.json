@@ -1,0 +1,6 @@
+{
+  "name": "Smart Home Dashboard",
+  "description": "Prosta, wysoce responsywna i elegancka strona sprzedażowa (landing page) dla ekosystemu inteligentnego domu Twój SMART Home z interaktywnym konfiguratorem oraz kasą.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
