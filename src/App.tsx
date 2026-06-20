@@ -67,11 +67,11 @@ const INITIAL_REVIEWS: Review[] = [
 
 export default function App() {
   // Configurator state variables
-  const [cams, setCams] = useState(1);
+  const [camsSingle, setCamsSingle] = useState(1);
+  const [camsDual, setCamsDual] = useState(0);
   const [locks, setLocks] = useState(1);
   const [floods, setFloods] = useState(1);
   const [lights, setLights] = useState(2);
-  const [cameraType, setCameraType] = useState<"single" | "dual">("single");
 
   // Promo Code State
   const [promoCode, setPromoCode] = useState("");
@@ -122,19 +122,20 @@ export default function App() {
 
   // Base pricing declarations
   const HUB_PRICE = 499;
-  const camUnitPrice = cameraType === "single" ? 199 : 330;
+  const CAM_SINGLE_UNIT_PRICE = 199;
+  const CAM_DUAL_UNIT_PRICE = 330;
   const LOCK_UNIT_PRICE = 349;
   const FLOOD_UNIT_PRICE = 129;
   const LIGHT_UNIT_PRICE = 99;
 
   // Real-time pricing calculations
-  const camerasPrice = cams * camUnitPrice;
+  const camerasPrice = (camsSingle * CAM_SINGLE_UNIT_PRICE) + (camsDual * CAM_DUAL_UNIT_PRICE);
   const locksPrice = locks * LOCK_UNIT_PRICE;
   const floodsPrice = floods * FLOOD_UNIT_PRICE;
   const lightsPrice = lights * LIGHT_UNIT_PRICE;
 
   const subtotalItemsOnly = HUB_PRICE + camerasPrice + locksPrice + floodsPrice + lightsPrice;
-  const totalItemCount = 1 + cams + locks + floods + lights;
+  const totalItemCount = 1 + camsSingle + camsDual + locks + floods + lights;
 
   // Installation cost logic: 599 zł for up to 3 devices, 100 zł for each subsequent device
   const installationCost = includeInstallation ? (totalItemCount <= 3 ? 599 : 599 + (totalItemCount - 3) * 100) : 0;
@@ -197,7 +198,8 @@ export default function App() {
       paymentMethodName: paymentMethod === "blik" ? "Szybka płatność BLIK" : paymentMethod === "card" ? "Karta płatnicza" : "Płatność za pobraniem prza odbiorze",
       itemsOrdered: [
         { name: "Centralny Hub Sterujący Twój SMART Home (Baza)", qty: 1, price: HUB_PRICE },
-        ...(cams > 0 ? [{ name: `Kamera Bezprzewodowa Twój SMART Home Cam (${cameraType === "single" ? "Singiel" : "Dual"})`, qty: cams, price: camerasPrice }] : []),
+        ...(camsSingle > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: camsSingle, price: camsSingle * CAM_SINGLE_UNIT_PRICE }] : []),
+        ...(camsDual > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Dual)", qty: camsDual, price: camsDual * CAM_DUAL_UNIT_PRICE }] : []),
         ...(locks > 0 ? [{ name: "Zamek Smart Lock Twój SMART Home Lock", qty: locks, price: locksPrice }] : []),
         ...(floods > 0 ? [{ name: "Czujnik Zalania Twój SMART Home Flood", qty: floods, price: floodsPrice }] : []),
         ...(lights > 0 ? [{ name: "Żarówka RGB Smart Twój SMART Home Light", qty: lights, price: lightsPrice }] : []),
@@ -288,7 +290,8 @@ export default function App() {
   };
 
   const handleReset = () => {
-    setCams(1);
+    setCamsSingle(1);
+    setCamsDual(0);
     setLocks(1);
     setFloods(1);
     setLights(2);
@@ -613,64 +616,77 @@ export default function App() {
                 </div>
 
                 {/* 2. Cams Controller */}
-                <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
-                  <div className="flex items-start gap-4 flex-1">
+                <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
+                  <div className="flex items-start gap-4">
                     <div className="p-3 bg-zinc-50 text-zinc-900 border border-zinc-150 rounded-xl shrink-0">
                       <Camera className="w-5 h-5 text-zinc-950 stroke-[1.75]" />
                     </div>
-                    <div className="flex-1">
+                    <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Kamera Bezprzewodowa Twój SMART Home Cam HD
+                        Kamery Bezprzewodowe Twój SMART Home Cam HD
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Podgląd na żywo 1080p, wbudowany tryb nocny (IR) oraz inteligentny detektor ruchu. Zasilanie akumulatorowe!
+                        Bezprzewodowe kamery z wbudowanym trybem nocnym (IR), detekcją ruchu i zasilaniem akumulatorowym. Wybierz wersję Singiel, Dual lub obie jednocześnie!
                       </p>
-                      
-                      {/* Selection of Singiel vs Dual */}
-                      <div className="mt-3 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setCameraType("single")}
-                          className={`text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
-                            cameraType === "single"
-                              ? "bg-zinc-950 border-zinc-950 text-white shadow-3xs"
-                              : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
-                          }`}
-                        >
-                          Singiel (199 zł)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCameraType("dual")}
-                          className={`text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
-                            cameraType === "dual"
-                              ? "bg-zinc-950 border-zinc-950 text-white shadow-3xs"
-                              : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
-                          }`}
-                        >
-                          Dual (330 zł)
-                        </button>
-                      </div>
-
-                      <span className="inline-block mt-2.5 font-mono text-[11px] font-bold text-zinc-550">+{camUnitPrice} zł za sztukę</span>
                     </div>
                   </div>
-                  
-                  {/* Plus/minus buttons */}
-                  <div className="flex items-center gap-3.5 self-end sm:self-center bg-zinc-50 border border-zinc-150 p-1.5 rounded-xl">
-                    <button 
-                      onClick={() => setCams(Math.max(0, cams - 1))}
-                      className="w-8 h-8 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
-                    >
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="font-mono text-xs font-extrabold w-5 text-center text-zinc-900">{cams}</span>
-                    <button 
-                      onClick={() => setCams(Math.min(5, cams + 1))}
-                      className="w-8 h-8 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
+
+                  <div className="border-t border-zinc-100 pt-3 space-y-4">
+                    {/* Wersja Singiel Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">Wersja Singiel</span>
+                          <span className="text-[10px] bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-md font-mono font-bold">199 zł / szt.</span>
+                        </div>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">Podstawowy obiektyw HD 1080p, szeroki kąt widzenia 110°.</p>
+                      </div>
+                      <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-150 p-1 rounded-lg self-end sm:self-center">
+                        <button 
+                          type="button"
+                          onClick={() => setCamsSingle(Math.max(0, camsSingle - 1))}
+                          className="w-7 h-7 rounded-md bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-xs font-extrabold w-4 text-center text-zinc-900">{camsSingle}</span>
+                        <button 
+                          type="button"
+                          onClick={() => setCamsSingle(Math.min(5, camsSingle + 1))}
+                          className="w-7 h-7 rounded-md bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Wersja Dual Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-dashed border-zinc-150">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">Wersja Dual</span>
+                          <span className="text-[10px] bg-zinc-950 text-white px-2 py-0.5 rounded-md font-mono font-bold">330 zł / szt.</span>
+                        </div>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">Podwójny obiektyw ze śledzeniem ruchu i zoomem optycznym.</p>
+                      </div>
+                      <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-150 p-1 rounded-lg self-end sm:self-center">
+                        <button 
+                          type="button"
+                          onClick={() => setCamsDual(Math.max(0, camsDual - 1))}
+                          className="w-7 h-7 rounded-md bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-xs font-extrabold w-4 text-center text-zinc-900">{camsDual}</span>
+                        <button 
+                          type="button"
+                          onClick={() => setCamsDual(Math.min(5, camsDual + 1))}
+                          className="w-7 h-7 rounded-md bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -828,10 +844,17 @@ export default function App() {
                       <span className="font-bold text-zinc-900">{HUB_PRICE} zł</span>
                     </div>
 
-                    {cams > 0 && (
+                    {camsSingle > 0 && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{cams}x Kamera Twój SMART Home Cam HD ({cameraType === "single" ? "Singiel" : "Dual"})</span>
-                        <span className="font-bold text-zinc-900">+{camerasPrice} zł</span>
+                        <span className="text-zinc-500">{camsSingle}x Kamera SMART Home (Singiel)</span>
+                        <span className="font-bold text-zinc-900">+{camsSingle * CAM_SINGLE_UNIT_PRICE} zł</span>
+                      </div>
+                    )}
+
+                    {camsDual > 0 && (
+                      <div className="flex justify-between font-mono">
+                        <span className="text-zinc-500">{camsDual}x Kamera SMART Home (Dual)</span>
+                        <span className="font-bold text-zinc-900">+{camsDual * CAM_DUAL_UNIT_PRICE} zł</span>
                       </div>
                     )}
 
