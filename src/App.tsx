@@ -50,7 +50,7 @@ const INITIAL_REVIEWS: Review[] = [
     author: "Mikołaj K.",
     rating: 5,
     date: "Wczoraj",
-    content: "Mój najlepszy zakup do nowego mieszkania. Montaż zajął mi dosłownie kwadrans, a system działa niezawodnie. Kontrola oświetlenia i powiadomienia o zamkniętych zamkach dają super poczucie bezpieczeństwa.",
+    content: "Mój najlepszy zakup do nowego domu. Montaż zajął im dosłownie 2h, a system działa niezawodnie. Zamówiłem 2 kamery i klamkę smart, a czujnik zalania otrzymałem gratis. Dzięki! Szybko i sprawnie, POLECAM!",
     verified: true
   },
   {
@@ -413,23 +413,14 @@ export default function App() {
           <div className="md:col-span-6 relative">
             <div className="rounded-3xl overflow-hidden border border-zinc-200 shadow-xl bg-white p-2">
               <img 
-                src="/src/assets/images/lumi_smart_home_hero_1781940181820.jpg" 
+                src="/src/assets/images/smart_home_hero_1781971755499.jpg" 
                 alt="Inteligentny dom Twój SMART Home Hub" 
                 className="w-full h-auto object-cover rounded-2xl"
                 referrerPolicy="no-referrer"
               />
             </div>
             
-            {/* Ambient spec badge info overlay */}
-            <div className="absolute -bottom-5 -right-3 md:-right-5 bg-zinc-950 text-white rounded-2xl p-4 shadow-xl border border-zinc-900 flex items-center gap-3 max-w-xs transition-transform hover:scale-105">
-              <div className="p-2.5 bg-zinc-900 rounded-xl">
-                <Cpu className="w-5 h-5 text-white stroke-[1.75]" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-mono">SMART Core Hub</p>
-                <p className="text-xs font-bold leading-tight">Wszystkie moduły łączą się automatycznie na odległość do 100 metrów!</p>
-              </div>
-            </div>
+
           </div>
         </section>
       )}
