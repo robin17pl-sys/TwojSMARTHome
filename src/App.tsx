@@ -26,8 +26,14 @@ import {
   PhoneCall,
   Mail,
   MapPin,
-  Wrench
+  Wrench,
+  Wifi
 } from "lucide-react";
+import {
+  SmartHomeHeaderLogo,
+  SmartHomeFullLogo,
+  SmartHomeEmblem
+} from "./components/SmartHomeLogo";
 
 interface Review {
   id: number;
@@ -69,6 +75,7 @@ export default function App() {
   // Configurator state variables
   const [camsSingle, setCamsSingle] = useState(1);
   const [camsDual, setCamsDual] = useState(0);
+  const [wifiUpgrade, setWifiUpgrade] = useState<"none" | "wifi6" | "wifi7">("none");
   const [locks, setLocks] = useState(1);
   const [floods, setFloods] = useState(1);
   const [lights, setLights] = useState(2);
@@ -121,21 +128,24 @@ export default function App() {
   const [orderSummary, setOrderSummary] = useState<any>(null);
 
   // Base pricing declarations
-  const HUB_PRICE = 499;
+  const HUB_PRICE = 99;
   const CAM_SINGLE_UNIT_PRICE = 199;
   const CAM_DUAL_UNIT_PRICE = 330;
   const LOCK_UNIT_PRICE = 349;
   const FLOOD_UNIT_PRICE = 129;
   const LIGHT_UNIT_PRICE = 99;
+  const WIFI_6_PRICE = 299;
+  const WIFI_7_PRICE = 599;
 
   // Real-time pricing calculations
   const camerasPrice = (camsSingle * CAM_SINGLE_UNIT_PRICE) + (camsDual * CAM_DUAL_UNIT_PRICE);
   const locksPrice = locks * LOCK_UNIT_PRICE;
   const floodsPrice = floods * FLOOD_UNIT_PRICE;
   const lightsPrice = lights * LIGHT_UNIT_PRICE;
+  const wifiUpgradePrice = wifiUpgrade === "wifi6" ? WIFI_6_PRICE : wifiUpgrade === "wifi7" ? WIFI_7_PRICE : 0;
 
-  const subtotalItemsOnly = HUB_PRICE + camerasPrice + locksPrice + floodsPrice + lightsPrice;
-  const totalItemCount = 1 + camsSingle + camsDual + locks + floods + lights;
+  const subtotalItemsOnly = HUB_PRICE + camerasPrice + locksPrice + floodsPrice + lightsPrice + wifiUpgradePrice;
+  const totalItemCount = 1 + camsSingle + camsDual + locks + floods + lights + (wifiUpgrade !== "none" ? 1 : 0);
 
   // Installation cost logic: 599 zł for up to 3 devices, 100 zł for each subsequent device
   const installationCost = includeInstallation ? (totalItemCount <= 3 ? 599 : 599 + (totalItemCount - 3) * 100) : 0;
@@ -200,6 +210,8 @@ export default function App() {
         { name: "Centralny Hub Sterujący Twój SMART Home (Baza)", qty: 1, price: HUB_PRICE },
         ...(camsSingle > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: camsSingle, price: camsSingle * CAM_SINGLE_UNIT_PRICE }] : []),
         ...(camsDual > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Dual)", qty: camsDual, price: camsDual * CAM_DUAL_UNIT_PRICE }] : []),
+        ...(wifiUpgrade === "wifi6" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 6 + Konfiguracja", qty: 1, price: WIFI_6_PRICE }] : []),
+        ...(wifiUpgrade === "wifi7" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 7 + Konfiguracja", qty: 1, price: WIFI_7_PRICE }] : []),
         ...(locks > 0 ? [{ name: "Zamek Smart Lock Twój SMART Home Lock", qty: locks, price: locksPrice }] : []),
         ...(floods > 0 ? [{ name: "Czujnik Zalania Twój SMART Home Flood", qty: floods, price: floodsPrice }] : []),
         ...(lights > 0 ? [{ name: "Żarówka RGB Smart Twój SMART Home Light", qty: lights, price: lightsPrice }] : []),
@@ -328,11 +340,9 @@ export default function App() {
       {/* Main Container Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-zinc-100 sticky top-0 z-50 transition-all">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-black text-lg tracking-tighter text-zinc-950 flex items-center gap-1.5 focus:outline-none cursor-pointer" onClick={() => setCheckoutStep("config")}>
-              Twój SMART<span className="font-light text-zinc-500"> Home</span>
-            </span>
-            <span className="text-[9px] bg-zinc-100 text-zinc-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider font-sans border border-zinc-200">
+          <div className="flex items-center gap-3">
+            <SmartHomeHeaderLogo onClick={() => setCheckoutStep("config")} />
+            <span className="text-[9px] bg-zinc-100 text-zinc-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider font-sans border border-zinc-200 hidden sm:inline-block">
               ORIGINAL KIT
             </span>
           </div>
@@ -597,8 +607,8 @@ export default function App() {
                     W zestawie
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-zinc-50 text-zinc-900 border border-zinc-150 rounded-xl">
-                      <Cpu className="w-5 h-5 stroke-[2]" />
+                    <div className="p-2 bg-zinc-50 border border-zinc-150 rounded-xl flex items-center justify-center">
+                      <SmartHomeEmblem size={28} className="-m-0.5" />
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
@@ -667,7 +677,7 @@ export default function App() {
                           <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">Wersja Dual</span>
                           <span className="text-[10px] bg-zinc-950 text-white px-2 py-0.5 rounded-md font-mono font-bold">330 zł / szt.</span>
                         </div>
-                        <p className="text-[10px] text-zinc-400 mt-0.5">Podwójny obiektyw ze śledzeniem ruchu i zoomem optycznym.</p>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">Szerokokątny obiektyw 2.5K sterowany zdalnie, kąt widzenia do 180°.</p>
                       </div>
                       <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-150 p-1 rounded-lg self-end sm:self-center">
                         <button 
@@ -795,7 +805,63 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 6. Professional installation and configuration */}
+                {/* 6. WiFi Upgrade Controller */}
+                <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-zinc-50 text-zinc-900 border border-zinc-150 rounded-xl shrink-0">
+                      <Wifi className="w-5 h-5 text-zinc-950 stroke-[1.75]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5 flex-wrap">
+                        Modernizacja istniejącego WiFi w budynku <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide border border-emerald-150">Polecane dla kamer</span>
+                      </h3>
+                      <p className="text-[11px] text-zinc-400 mt-1">
+                        Zmodernizujemy Twoją obecną sieć WiFi do nowoczesnego, stabilnego standardu DualBand WiFi 6 lub WiFi 7 wraz z pełną konfiguracją pod inteligentne urządzenia i testami pokrycia sygnałem.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-zinc-100 pt-3.5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setWifiUpgrade("none")}
+                      className={`flex-1 min-w-[130px] text-[10px] font-extrabold uppercase px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-center flex flex-col items-center justify-center gap-1.5 ${
+                        wifiUpgrade === "none"
+                          ? "bg-zinc-950 border-zinc-950 text-white shadow-3xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
+                      }`}
+                    >
+                      <span className="font-extrabold">Bez aktualizacji</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">(0 zł)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWifiUpgrade("wifi6")}
+                      className={`flex-1 min-w-[130px] text-[10px] font-extrabold uppercase px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-center flex flex-col items-center justify-center gap-1.5 ${
+                        wifiUpgrade === "wifi6"
+                          ? "bg-zinc-950 border-zinc-950 text-white shadow-2xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
+                      }`}
+                    >
+                      <span className="font-extrabold">DualBand WiFi 6 🚀</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{WIFI_6_PRICE} zł z konfig.</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWifiUpgrade("wifi7")}
+                      className={`flex-1 min-w-[130px] text-[10px] font-extrabold uppercase px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-center flex flex-col items-center justify-center gap-1.5 ${
+                        wifiUpgrade === "wifi7"
+                          ? "bg-zinc-950 border-zinc-950 text-white shadow-2xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
+                      }`}
+                    >
+                      <span className="font-extrabold">DualBand WiFi 7 ⚡</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{WIFI_7_PRICE} zł z konfig.</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 7. Professional installation and configuration */}
                 <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-zinc-50 text-zinc-900 border border-zinc-150 rounded-xl shrink-0">
@@ -876,6 +942,13 @@ export default function App() {
                       <div className="flex justify-between font-mono">
                         <span className="text-zinc-500">{lights}x Żarówka Smart RGB</span>
                         <span className="font-bold text-zinc-900">+{lightsPrice} zł</span>
+                      </div>
+                    )}
+
+                    {wifiUpgrade !== "none" && (
+                      <div className="flex justify-between font-mono">
+                        <span className="text-zinc-500">1x Modernizacja WiFi ({wifiUpgrade === "wifi6" ? "DualBand WiFi 6" : "DualBand WiFi 7"})</span>
+                        <span className="font-bold text-zinc-900">+{wifiUpgradePrice} zł</span>
                       </div>
                     )}
 
@@ -1379,9 +1452,13 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8 items-start text-left">
           
           {/* Logo & copyright */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-zinc-950 tracking-tighter uppercase">Twój SMART Home</span>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2.5">
+              <SmartHomeEmblem size={32} />
+              <span className="font-extrabold text-[15px] text-zinc-950 tracking-tight flex flex-col leading-none">
+                <span className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest mb-0.5 leading-none">Twój</span>
+                <span>SMART <span className="font-normal text-zinc-500">Home</span></span>
+              </span>
               <span className="text-[10px] text-zinc-300">|</span>
               <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Original IoT kit</span>
             </div>
