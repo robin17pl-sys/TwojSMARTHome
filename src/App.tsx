@@ -1752,7 +1752,7 @@ export default function App() {
                 <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider border border-emerald-200">
                   DORADCA LIVE
                 </span>
-                <h4 className="text-xs font-black text-zinc-950 mt-0.5">Konrad - Ekspert Smart Home</h4>
+                <h4 className="text-xs font-black text-zinc-950 mt-0.5">SANDRA - Ekspert Smart Home</h4>
               </div>
             </div>
 
