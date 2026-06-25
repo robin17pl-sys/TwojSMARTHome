@@ -106,10 +106,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Hero Image Fallback State
-  const imageSources = ["/Foto/1.png", "Foto/1.png", "/Foto/1.PNG", "Foto/1.PNG", "/foto/1.png", "foto/1.png"];
-  const [imgSrcIdx, setImgSrcIdx] = useState(0);
-
   // Call Widget State
   const [isCallWidgetOpen, setIsCallWidgetOpen] = useState(false);
   const [hasUserClosedCallWidget, setHasUserClosedCallWidget] = useState(false);
@@ -504,6 +500,22 @@ export default function App() {
         </div>
       </header>
 
+      {/* Infinite Scrolling Marquee Bar */}
+      <div className="bg-zinc-950 border-b border-zinc-900 text-zinc-100 py-3 overflow-hidden relative select-none">
+        <div className="flex w-max animate-marquee text-[11px] md:text-xs font-semibold tracking-wider uppercase font-sans">
+          <span className="px-6 flex items-center gap-2">
+            ✨ Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem. <strong className="text-amber-400">JESTEŚ W DOBRYM MIEJSCU!</strong>
+          </span>
+          <span className="px-6 flex items-center gap-2">
+            ✨ Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem. <strong className="text-amber-400">JESTEŚ W DOBRYM MIEJSCU!</strong>
+          </span>
+          <span className="px-6 flex items-center gap-2">
+            ✨ Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem. <strong className="text-amber-400">JESTEŚ W DOBRYM MIEJSCU!</strong>
+          </span>
+        </div>
+      </div>
+
+
       {/* Hero section */}
       {currentPath === "/kontaktwyslany" ? (
         <div className="max-w-3xl mx-auto px-6 py-16 md:py-24 text-center">
@@ -574,10 +586,6 @@ export default function App() {
         <section className="py-12 md:py-20 max-w-6xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center">
           {/* Left Text Detail */}
           <div className="md:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-100 rounded-full text-xs font-extrabold text-zinc-800 uppercase tracking-wider">
-              <Award className="w-3.5 h-3.5 text-zinc-900" /> Najprostsze Smart Home na rynku
-            </div>
-            
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-zinc-950 leading-[1.1]">
               Twój dom. Mądrzejszy, Bezpieczniejszy i Funkcjonalny!
             </h1>
@@ -617,16 +625,10 @@ export default function App() {
           <div className="md:col-span-6 relative">
             <div className="rounded-3xl overflow-hidden border border-zinc-200 shadow-xl bg-white p-2 w-full h-[300px] sm:h-[400px] md:w-[600px] md:h-[500px] mx-auto flex items-center justify-center">
               <img 
-                src={imageSources[imgSrcIdx]} 
+                src="/Foto/1.png" 
                 alt="Inteligentny dom Twój SMART Home Hub" 
                 className="w-full h-full object-contain rounded-2xl animate-fade-in"
                 referrerPolicy="no-referrer"
-                onError={() => {
-                  if (imgSrcIdx < imageSources.length - 1) {
-                    console.log("Failed to load image at " + imageSources[imgSrcIdx] + ", trying " + imageSources[imgSrcIdx + 1]);
-                    setImgSrcIdx(imgSrcIdx + 1);
-                  }
-                }}
               />
             </div>
             
