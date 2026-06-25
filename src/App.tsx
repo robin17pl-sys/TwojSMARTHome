@@ -1644,7 +1644,7 @@ export default function App() {
             </div>
 
             <div className="space-y-2">
-              <h4 className="text-[10px] font-black uppercase text-zinc-900 tracking-wider">Śląsk Smart Home</h4>
+              <h4 className="text-[10px] font-black uppercase text-zinc-900 tracking-wider">Twój SMART Home</h4>
               <ul className="space-y-1 text-zinc-600">
                 <li>• <span className="hover:text-zinc-900 transition-colors">bielsko-biała smart home</span></li>
                 <li>• <span className="hover:text-zinc-900 transition-colors">żywiec smart home</span></li>
