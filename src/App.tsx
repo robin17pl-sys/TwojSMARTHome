@@ -577,7 +577,7 @@ export default function App() {
 
           {/* Right visual picture card */}
           <div className="md:col-span-6 relative">
-            <div className="rounded-3xl overflow-hidden border border-zinc-200 shadow-xl bg-white p-2 md:w-[600px] md:h-[500px] w-full mx-auto flex items-center justify-center">
+            <div className="rounded-3xl overflow-hidden border border-zinc-200 shadow-xl bg-white p-2 w-full h-[300px] sm:h-[400px] md:w-[600px] md:h-[500px] mx-auto flex items-center justify-center">
               <img 
                 src="/Foto/1.png" 
                 alt="Inteligentny dom Twój SMART Home Hub" 
