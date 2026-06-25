@@ -58,7 +58,7 @@ const INITIAL_REVIEWS: Review[] = [
     author: "Karolina W.",
     rating: 5,
     date: "3 dni temu",
-    content: "Szukałam systemu bez drogiego abonamentu i skomplikowanego wiercenia ścian. Czujnik zalania pod pralką już raz uratował panele! Opcja wygenerowania PINu dla kuriera w zamkach to absolutna rewelacja.",
+    content: "Szukałam niedrogiego systemu do monitorowania domu i obserwacji psów podczas nieobecności w mieszkaniu. Ekipa przyjechała, zainstalowała 3 obrotowe kamery, zainstalowany i skonfigurowali nowy router wifi, i zainstalowali przełącznik światła na wifi. Jestem zadowolona i mogę polecić.",
     verified: true
   },
   {
@@ -413,7 +413,7 @@ export default function App() {
           <div className="md:col-span-6 relative">
             <div className="rounded-3xl overflow-hidden border border-zinc-200 shadow-xl bg-white p-2">
               <img 
-                src="/src/assets/images/smart_home_hero_1781971755499.jpg" 
+                src="/Foto/1.png" 
                 alt="Inteligentny dom Twój SMART Home Hub" 
                 className="w-full h-auto object-cover rounded-2xl"
                 referrerPolicy="no-referrer"
