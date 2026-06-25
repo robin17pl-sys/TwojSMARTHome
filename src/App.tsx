@@ -247,7 +247,7 @@ export default function App() {
     const totalWithDiscount = finalTotalPrice;
 
     try {
-      await fetch("https://formsubmit.co/ajax/DreamStudiopl@gmail.com", {
+      await fetch("https://formsubmit.co/ajax/dreamstudiopl@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -333,7 +333,7 @@ export default function App() {
     setContactSuccessMsg("");
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/DreamStudiopl@gmail.com", {
+      const response = await fetch("https://formsubmit.co/ajax/dreamstudiopl@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -349,7 +349,7 @@ export default function App() {
       });
 
       if (response.ok) {
-        setContactSuccessMsg("Dziękujemy! Twoja wiadomość została pomyślnie wysłana bezpośrednio na adres DreamStudiopl@gmail.com. Skontaktujemy się z Tobą wkrótce!");
+        setContactSuccessMsg("Dziękujemy! Twoja wiadomość została pomyślnie wysłana bezpośrednio na adres dreamstudiopl@gmail.com. Skontaktujemy się z Tobą wkrótce!");
         setContactName("");
         setContactEmail("");
         setContactPhone("");
@@ -360,7 +360,7 @@ export default function App() {
       }
     } catch (error) {
       // Fallback: system email alert or alternative presentation
-      setContactSuccessMsg("Wystąpił błąd podczas wysyłania przez formularz. Możesz napisać do nas bezpośrednio na: DreamStudiopl@gmail.com");
+      setContactSuccessMsg("Wystąpił błąd podczas wysyłania przez formularz. Możesz napisać do nas bezpośrednio na: dreamstudiopl@gmail.com");
     } finally {
       setIsSubmittingContact(false);
     }
@@ -535,7 +535,7 @@ export default function App() {
             </h1>
 
             <p className="text-sm md:text-base text-zinc-500 leading-relaxed max-w-lg mx-auto mt-4">
-              Twoja wiadomość została pomyślnie wysłana i trafiła bezpośrednio do naszego zespołu technicznego na adres <strong className="text-zinc-900 font-semibold">DreamStudiopl@gmail.com</strong>.
+              Twoja wiadomość została pomyślnie wysłana i trafiła bezpośrednio do naszego zespołu technicznego na adres <strong className="text-zinc-900 font-semibold">dreamstudiopl@gmail.com</strong>.
             </p>
 
             <div className="bg-zinc-50 border border-zinc-150 rounded-2xl p-6 my-8 text-left space-y-4 max-w-xl mx-auto">
@@ -1505,8 +1505,8 @@ export default function App() {
                   </div>
                   <div>
                     <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">E-mail</h4>
-                    <a href="mailto:DreamStudiopl@gmail.com" className="text-zinc-950 text-xs font-bold mt-0.5 hover:underline block">
-                      DreamStudiopl@gmail.com
+                    <a href="mailto:dreamstudiopl@gmail.com" className="text-zinc-950 text-xs font-bold mt-0.5 hover:underline block">
+                      dreamstudiopl@gmail.com
                     </a>
                   </div>
                 </div>
@@ -1705,7 +1705,7 @@ export default function App() {
               NIP: <span className="font-mono">627-264-32-87</span>
             </p>
             <p className="text-zinc-600">
-              E-mail: <a href="mailto:DreamStudiopl@gmail.com" className="text-zinc-950 font-bold hover:underline">DreamStudiopl@gmail.com</a>
+              E-mail: <a href="mailto:dreamstudiopl@gmail.com" className="text-zinc-950 font-bold hover:underline">dreamstudiopl@gmail.com</a>
             </p>
           </div>
 
