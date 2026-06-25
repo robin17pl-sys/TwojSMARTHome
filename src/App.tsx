@@ -106,6 +106,10 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Hero Image Fallback State
+  const imageSources = ["/Foto/1.png", "Foto/1.png", "/Foto/1.PNG", "Foto/1.PNG", "/foto/1.png", "foto/1.png"];
+  const [imgSrcIdx, setImgSrcIdx] = useState(0);
+
   // Call Widget State
   const [isCallWidgetOpen, setIsCallWidgetOpen] = useState(false);
   const [hasUserClosedCallWidget, setHasUserClosedCallWidget] = useState(false);
@@ -579,10 +583,16 @@ export default function App() {
           <div className="md:col-span-6 relative">
             <div className="rounded-3xl overflow-hidden border border-zinc-200 shadow-xl bg-white p-2 w-full h-[300px] sm:h-[400px] md:w-[600px] md:h-[500px] mx-auto flex items-center justify-center">
               <img 
-                src="/Foto/1.png" 
+                src={imageSources[imgSrcIdx]} 
                 alt="Inteligentny dom Twój SMART Home Hub" 
-                className="w-full h-full object-contain rounded-2xl"
+                className="w-full h-full object-contain rounded-2xl animate-fade-in"
                 referrerPolicy="no-referrer"
+                onError={() => {
+                  if (imgSrcIdx < imageSources.length - 1) {
+                    console.log("Failed to load image at " + imageSources[imgSrcIdx] + ", trying " + imageSources[imgSrcIdx + 1]);
+                    setImgSrcIdx(imgSrcIdx + 1);
+                  }
+                }}
               />
             </div>
             
