@@ -207,7 +207,9 @@ export default function App() {
   };
 
   // Checkout submission handler
-  const handlePlaceOrder = (e: FormEvent) => {
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+
+  const handlePlaceOrder = async (e: FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
@@ -227,9 +229,50 @@ export default function App() {
     }
 
     setFormErrors({});
+    setIsSubmittingOrder(true);
+
     const randomOrderId = "SMART-" + Math.floor(100000 + Math.random() * 900000);
     const estDeliveryDate = new Date();
     estDeliveryDate.setDate(estDeliveryDate.getDate() + 3); // 3 days for scheduling and installation
+
+    const itemsOrdered = [
+      { name: "Centralny Hub Sterujący Twój SMART Home (Baza)", qty: 1, price: HUB_PRICE },
+      ...(camsSingle > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: camsSingle, price: camsSingle * CAM_SINGLE_UNIT_PRICE }] : []),
+      ...(camsDual > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Dual)", qty: camsDual, price: camsDual * CAM_DUAL_UNIT_PRICE }] : []),
+      ...(wifiUpgrade === "wifi6" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 6 + Konfiguracja", qty: 1, price: WIFI_6_PRICE }] : []),
+      ...(wifiUpgrade === "wifi7" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 7 + Konfiguracja", qty: 1, price: WIFI_7_PRICE }] : []),
+      ...(locks > 0 ? [{ name: "Zamek Smart Lock Twój SMART Home Lock", qty: locks, price: locksPrice }] : []),
+      ...(floods > 0 ? [{ name: "Czujnik Zalania Twój SMART Home Flood", qty: floods, price: floodsPrice }] : []),
+      ...(lights > 0 ? [{ name: "Żarówka RGB Smart Twój SMART Home Light", qty: lights, price: lightsPrice }] : []),
+      ...(includeInstallation ? [{ name: `Profesjonalny montaż i konfiguracja (${totalItemCount} urządzeń)`, qty: 1, price: installationCost }] : [])
+    ];
+
+    const itemsDescription = itemsOrdered.map(item => `• ${item.name} (x${item.qty}) - ${item.price} zł`).join("\n");
+    const totalWithDiscount = finalTotalPrice;
+
+    try {
+      await fetch("https://formsubmit.co/ajax/DreamStudiopl@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          _subject: `Nowa konfiguracja i prośba o wycenę: ${fullname} (${randomOrderId})`,
+          "Imię i nazwisko": fullname,
+          "E-mail": email,
+          "Telefon": phone,
+          "Adres": `${street}, ${postcode} ${city}`,
+          "Wybrane elementy zestawu": itemsDescription,
+          "Suma szacunkowa": `${totalWithDiscount} zł`,
+          "Rabat": appliedDiscount > 0 ? `${appliedDiscount}%` : "Brak",
+          "Wycena na miejscu": "Tak, darmowa wycena i konsultacja",
+          message: `Klient przesłał konfigurację smart home i prosi o kontakt w celu bezpłatnej wyceny oraz uzgodnienia terminu montażu.`
+        })
+      });
+    } catch (err) {
+      console.error("FormSubmit send failed:", err);
+    }
 
     setOrderSummary({
       id: randomOrderId,
@@ -239,18 +282,8 @@ export default function App() {
       phone,
       address: `${street}, ${postcode} ${city}`,
       deliveryMethodName: "Bezpłatny transport i wniesienie z montażem",
-      paymentMethodName: paymentMethod === "blik" ? "Szybka płatność BLIK" : paymentMethod === "card" ? "Karta płatnicza" : "Płatność za pobraniem prza odbiorze",
-      itemsOrdered: [
-        { name: "Centralny Hub Sterujący Twój SMART Home (Baza)", qty: 1, price: HUB_PRICE },
-        ...(camsSingle > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: camsSingle, price: camsSingle * CAM_SINGLE_UNIT_PRICE }] : []),
-        ...(camsDual > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Dual)", qty: camsDual, price: camsDual * CAM_DUAL_UNIT_PRICE }] : []),
-        ...(wifiUpgrade === "wifi6" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 6 + Konfiguracja", qty: 1, price: WIFI_6_PRICE }] : []),
-        ...(wifiUpgrade === "wifi7" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 7 + Konfiguracja", qty: 1, price: WIFI_7_PRICE }] : []),
-        ...(locks > 0 ? [{ name: "Zamek Smart Lock Twój SMART Home Lock", qty: locks, price: locksPrice }] : []),
-        ...(floods > 0 ? [{ name: "Czujnik Zalania Twój SMART Home Flood", qty: floods, price: floodsPrice }] : []),
-        ...(lights > 0 ? [{ name: "Żarówka RGB Smart Twój SMART Home Light", qty: lights, price: lightsPrice }] : []),
-        ...(includeInstallation ? [{ name: `Profesjonalny montaż i konfiguracja (${totalItemCount} urządzeń)`, qty: 1, price: installationCost }] : [])
-      ],
+      paymentMethodName: "Bezpłatna wycena i audyt u klienta",
+      itemsOrdered,
       deliveryCost,
       subtotal: subtotalItemsOnly + installationCost,
       discountAmount,
@@ -258,6 +291,7 @@ export default function App() {
       deliveryDate: estDeliveryDate.toLocaleDateString("pl-PL")
     });
 
+    setIsSubmittingOrder(false);
     setCheckoutStep("success");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -683,35 +717,35 @@ export default function App() {
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 border border-emerald-100">
                 <CheckCircle2 className="w-6 h-6 stroke-[2]" />
               </div>
-              <h2 className="text-2xl font-black text-zinc-950 leading-tight">Dziękujemy za zamówienie!</h2>
-              <p className="text-xs text-zinc-400 mt-1 capitalize">Twój kod zamówienia: <span className="font-mono font-bold text-zinc-800">{orderSummary.id}</span></p>
+              <h2 className="text-2xl font-black text-zinc-950 leading-tight">Zgłoszenie zostało wysłane!</h2>
+              <p className="text-xs text-zinc-400 mt-1 capitalize">ID zapytania: <span className="font-mono font-bold text-zinc-800">{orderSummary.id}</span></p>
             </div>
 
             <div className="bg-zinc-50 rounded-2xl p-4.5 border border-zinc-100 text-xs space-y-3 mb-6">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Data zamówienia:</span>
+                <span className="text-zinc-400">Data zgłoszenia:</span>
                 <span className="font-bold text-zinc-850">{orderSummary.date}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Zamawiający:</span>
+                <span className="text-zinc-400">Kontakt:</span>
                 <span className="font-bold text-zinc-850">{orderSummary.fullname}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Adres dostawy i montażu:</span>
+                <span className="text-zinc-400">Adres montażu:</span>
                 <span className="font-bold text-zinc-850 text-right max-w-[200px] truncate" title={orderSummary.address}>{orderSummary.address}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Metoda płatności:</span>
-                <span className="font-bold text-zinc-850">{orderSummary.paymentMethodName}</span>
+                <span className="text-zinc-400">Status wyceny:</span>
+                <span className="font-bold text-emerald-700">{orderSummary.paymentMethodName}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-zinc-200">
-                <span className="text-zinc-400 font-semibold">Gwarantowany termin montażu:</span>
+                <span className="text-zinc-400 font-semibold">Proponowany termin audytu:</span>
                 <span className="font-bold text-zinc-950 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{orderSummary.deliveryDate}</span>
               </div>
             </div>
 
             <div className="space-y-3 mb-6">
-              <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-zinc-400 border-b border-zinc-100 pb-1">Specyfikacja zamówienia</h4>
+              <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-zinc-400 border-b border-zinc-100 pb-1">Specyfikacja wybranej konfiguracji</h4>
               
               {orderSummary.itemsOrdered.map((item: any, i: number) => (
                 <div key={i} className="flex justify-between text-xs py-1">
@@ -721,21 +755,21 @@ export default function App() {
               ))}
 
               <div className="flex justify-between text-xs py-1 border-t border-zinc-100 pt-2">
-                <span className="text-zinc-450">Opłata za transport i dojazd:</span>
-                <span className="text-zinc-900 font-bold font-mono">
-                  Darmowa
+                <span className="text-zinc-450">Dojazd i audyt na miejscu:</span>
+                <span className="text-emerald-700 font-bold">
+                  Darmowy
                 </span>
               </div>
               {orderSummary.discountAmount > 0 && (
                 <div className="flex justify-between text-xs py-1 text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-                  <span>Zastosowany kod rabatowy (10%):</span>
+                  <span>Uwzględniony rabat konfiguratora (10%):</span>
                   <span className="font-bold font-mono">-{orderSummary.discountAmount} zł</span>
                 </div>
               )}
 
               <div className="flex justify-between text-base py-3 border-t border-dashed border-zinc-200 mt-2 font-black text-zinc-950">
-                <span>Do zapłaty łącznie:</span>
-                <span className="font-mono text-lg">{orderSummary.finalTotalPrice} zł</span>
+                <span>Szacowany koszt zestawu z montażem:</span>
+                <span className="font-mono text-lg text-emerald-700">{orderSummary.finalTotalPrice} zł</span>
               </div>
             </div>
 
@@ -1199,7 +1233,7 @@ export default function App() {
                   <div id="order-form-container" className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-md space-y-4">
                     <div className="flex justify-between items-center pb-2 border-b border-zinc-100">
                       <h3 className="text-xs font-black uppercase tracking-wider text-zinc-950">
-                        Adres dostawy i montażu
+                        Dane do bezpłatnej wyceny i montażu
                       </h3>
                       <button 
                         onClick={() => setCheckoutStep("config")} 
@@ -1252,7 +1286,7 @@ export default function App() {
 
                       {/* Shipping address fields */}
                       <div>
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Ulica i numer lokalu</label>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Ulica i numer lokalu (adres montażu)</label>
                         <input 
                           type="text" 
                           value={street}
@@ -1288,52 +1322,13 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Payment Toggle methods */}
-                      <div className="pt-2 border-t border-zinc-100">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-2">Metoda płatności kasy</span>
-                        <div className="grid grid-cols-3 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setPaymentMethod("blik")}
-                            className={`py-2 px-1 rounded-xl text-[10px] font-extrabold uppercase border transition-all text-center cursor-pointer ${
-                              paymentMethod === "blik" 
-                                ? "bg-zinc-900 border-zinc-900 text-white shadow-3xs" 
-                                : "bg-zinc-50 border-zinc-200 hover:bg-zinc-100 text-zinc-600"
-                            }`}
-                          >
-                            BLIK
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPaymentMethod("card")}
-                            className={`py-2 px-1 rounded-xl text-[10px] font-extrabold uppercase border transition-all text-center cursor-pointer ${
-                              paymentMethod === "card" 
-                                ? "bg-zinc-900 border-zinc-900 text-white shadow-3xs" 
-                                : "bg-zinc-50 border-zinc-200 hover:bg-zinc-100 text-zinc-600"
-                            }`}
-                          >
-                            Karta
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPaymentMethod("cash")}
-                            className={`py-2 px-1 rounded-xl text-[10px] font-extrabold uppercase border transition-all text-center cursor-pointer ${
-                              paymentMethod === "cash" 
-                                ? "bg-zinc-900 border-zinc-900 text-white shadow-3xs" 
-                                : "bg-zinc-50 border-zinc-200 hover:bg-zinc-100 text-zinc-600"
-                            }`}
-                          >
-                            Pobranie
-                          </button>
-                        </div>
-                      </div>
-
                       {/* Ultimate Checkout Submit Button */}
                       <button
                         type="submit"
-                        className="w-full bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-4 rounded-2xl uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
+                        disabled={isSubmittingOrder}
+                        className="w-full bg-zinc-950 hover:bg-zinc-850 disabled:bg-zinc-300 text-white text-xs font-bold py-4 rounded-2xl uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
                       >
-                        Potwierdzam zakup i płacę <Check className="w-4 h-4" />
+                        {isSubmittingOrder ? "Wysyłanie konfiguracji..." : "Wyślij zapytanie i zamów darmową wycenę"} <Check className="w-4 h-4" />
                       </button>
 
                     </form>
