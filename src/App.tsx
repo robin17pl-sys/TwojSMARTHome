@@ -89,6 +89,21 @@ export default function App() {
   // Booking Flow Steps
   // 'config' | 'checkout' | 'success'
   const [checkoutStep, setCheckoutStep] = useState<"config" | "checkout" | "success">("config");
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    window.history.pushState(null, "", path);
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Lead Checkout Form State
   const [fullname, setFullname] = useState("");
@@ -290,6 +305,7 @@ export default function App() {
         setContactEmail("");
         setContactPhone("");
         setContactMessage("");
+        navigateTo("/kontaktwyslany");
       } else {
         throw new Error("Wysłanie nie powiodło się");
       }
@@ -341,22 +357,92 @@ export default function App() {
       <header className="bg-white/80 backdrop-blur-md border-b border-zinc-100 sticky top-0 z-50 transition-all">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <SmartHomeHeaderLogo onClick={() => setCheckoutStep("config")} />
+            <SmartHomeHeaderLogo onClick={() => { setCheckoutStep("config"); navigateTo("/"); }} />
             <span className="text-[9px] bg-zinc-100 text-zinc-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider font-sans border border-zinc-200 hidden sm:inline-block">
               ORIGINAL KIT
             </span>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-xs font-bold text-zinc-650 uppercase tracking-wider">
-            <a href="#cechy" className="hover:text-zinc-950 transition-colors">Zalety</a>
-            <a href="#konfigurator" className="hover:text-zinc-950 transition-colors">Kreator zestawu</a>
-            <a href="#opinie" className="hover:text-zinc-950 transition-colors">Referencje</a>
-            <a href="#kontakt" className="hover:text-zinc-950 transition-colors">Kontakt</a>
+            <a 
+              href="#cechy" 
+              onClick={(e) => {
+                if (currentPath !== "/") {
+                  e.preventDefault();
+                  navigateTo("/");
+                  setTimeout(() => {
+                    const el = document.getElementById("cechy");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
+              }}
+              className="hover:text-zinc-950 transition-colors"
+            >
+              Zalety
+            </a>
+            <a 
+              href="#konfigurator" 
+              onClick={(e) => {
+                if (currentPath !== "/") {
+                  e.preventDefault();
+                  navigateTo("/");
+                  setTimeout(() => {
+                    const el = document.getElementById("konfigurator");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
+              }}
+              className="hover:text-zinc-950 transition-colors"
+            >
+              Kreator zestawu
+            </a>
+            <a 
+              href="#opinie" 
+              onClick={(e) => {
+                if (currentPath !== "/") {
+                  e.preventDefault();
+                  navigateTo("/");
+                  setTimeout(() => {
+                    const el = document.getElementById("opinie");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
+              }}
+              className="hover:text-zinc-950 transition-colors"
+            >
+              Referencje
+            </a>
+            <a 
+              href="#kontakt" 
+              onClick={(e) => {
+                if (currentPath !== "/") {
+                  e.preventDefault();
+                  navigateTo("/");
+                  setTimeout(() => {
+                    const el = document.getElementById("kontakt");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
+              }}
+              className="hover:text-zinc-950 transition-colors"
+            >
+              Kontakt
+            </a>
           </nav>
 
           <div className="flex items-center gap-3">
             <a 
               href="#konfigurator" 
+              onClick={(e) => {
+                if (currentPath !== "/") {
+                  e.preventDefault();
+                  navigateTo("/");
+                  setTimeout(() => {
+                    const el = document.getElementById("konfigurator");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
+              }}
               className="bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-2.5 px-5 rounded-xl uppercase tracking-wider transition-all shadow-3xs cursor-pointer flex items-center gap-1.5"
             >
               <ShoppingBag className="w-3.5 h-3.5" /> Skonfiguruj
@@ -366,7 +452,72 @@ export default function App() {
       </header>
 
       {/* Hero section */}
-      {checkoutStep === "config" && (
+      {currentPath === "/kontaktwyslany" ? (
+        <div className="max-w-3xl mx-auto px-6 py-16 md:py-24 text-center">
+          <div className="bg-white border border-zinc-200 rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-zinc-200 via-zinc-950 to-zinc-200" />
+            
+            <div className="mx-auto w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-6 border border-zinc-200">
+              <Check className="w-8 h-8 text-zinc-900" />
+            </div>
+
+            <span className="text-[10px] bg-zinc-100 text-zinc-800 font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-zinc-200">
+              ZGŁOSZENIE WYŚLANE POMYŚLNIE
+            </span>
+
+            <h1 className="text-3xl md:text-4xl font-black text-zinc-950 tracking-tight mt-6">
+              Dziękujemy za kontakt!
+            </h1>
+
+            <p className="text-sm md:text-base text-zinc-500 leading-relaxed max-w-lg mx-auto mt-4">
+              Twoja wiadomość została pomyślnie wysłana i trafiła bezpośrednio do naszego zespołu technicznego na adres <strong className="text-zinc-900 font-semibold">DreamStudiopl@gmail.com</strong>.
+            </p>
+
+            <div className="bg-zinc-50 border border-zinc-150 rounded-2xl p-6 my-8 text-left space-y-4 max-w-xl mx-auto">
+              <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Co wydarzy się teraz?</h3>
+              <div className="grid gap-3 text-xs text-zinc-655">
+                <div className="flex gap-3">
+                  <span className="font-mono font-bold text-zinc-900 bg-zinc-200 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-center text-[10px] leading-5">1</span>
+                  <p><strong>Analiza zgłoszenia:</strong> Zapoznamy się z Twoimi pytaniami lub konfiguracją w ciągu maksymalnie 2 godzin.</p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="font-mono font-bold text-zinc-900 bg-zinc-200 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-center text-[10px] leading-5">2</span>
+                  <p><strong>Kontakt zwrotny:</strong> Oddzwonimy lub odpiszemy z gotowymi odpowiedziami oraz darmową wyceną.</p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="font-mono font-bold text-zinc-900 bg-zinc-200 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-center text-[10px] leading-5">3</span>
+                  <p><strong>Propozycja terminu:</strong> Zaproponujemy dogodny termin bezpłatnej wizyty doradczej lub bezpośredniego montażu.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <button 
+                onClick={() => navigateTo("/")}
+                className="bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-3.5 px-8 rounded-xl uppercase tracking-wider transition-all shadow-md cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                Wróć do strony głównej
+              </button>
+              <button 
+                onClick={() => {
+                  navigateTo("/");
+                  setTimeout(() => {
+                    const element = document.getElementById("konfigurator");
+                    if (element) {
+                      element.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }, 150);
+                }}
+                className="bg-white hover:bg-zinc-50 text-zinc-900 border border-zinc-250 text-xs font-bold py-3.5 px-8 rounded-xl uppercase tracking-wider transition-all cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                Przejdź do konfiguratora
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {checkoutStep === "config" && (
         <section className="py-12 md:py-20 max-w-6xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center">
           {/* Left Text Detail */}
           <div className="md:col-span-6 space-y-6">
@@ -1355,7 +1506,7 @@ export default function App() {
               <h3 className="text-lg font-black text-zinc-950 tracking-tight flex items-center gap-2">
                 Napisz do nas <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
               </h3>
-              <p className="text-zinc-500 text-xs mt-1 mb-6">
+              <p className="text-zinc-550 text-xs mt-1 mb-6">
                 Skorzystaj z poniższego formularza, aby wysłać do nas zapytanie.
               </p>
 
@@ -1436,6 +1587,8 @@ export default function App() {
 
           </div>
         </section>
+      )}
+        </>
       )}
 
       {/* SEO Regional & Technical Area Directory Section */}
