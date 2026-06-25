@@ -1438,6 +1438,70 @@ export default function App() {
         </section>
       )}
 
+      {/* SEO Regional & Technical Area Directory Section */}
+      <section className="bg-zinc-100/50 border-t border-zinc-150 py-10 text-zinc-500 text-xs">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="border-b border-zinc-200 pb-6 mb-6">
+            <h3 className="text-zinc-900 font-bold text-sm mb-3">
+              Lokalny montaż smart home i systemów bezpieczeństwa – Śląsk, Małopolska i okolice
+            </h3>
+            <p className="text-zinc-500 leading-relaxed max-w-4xl">
+              Oferujemy profesjonalne usługi wdrożeniowe i doradztwo z zakresu automatyki domowej oraz ochrony mienia. 
+              Nasza specjalność to kompleksowy <strong>smart home montaż</strong>, konfiguracja nowoczesnych sieci oraz zabezpieczeń bez wiercenia i kosztownych abonamentów. 
+              Dzięki naszym rozwiązaniom uzyskasz stały podgląd na żywo poprzez <strong>kamery online</strong> (idealne do obserwacji psów i zwierząt podczas nieobecności), 
+              zainstalujesz bezpieczne i wygodne <strong>smart klamki dla domu</strong> oraz zoptymalizujesz codzienne zużycie energii. 
+              Wybierz sprawdzony, <strong>tani smart home</strong> dopasowany do Twojego budżetu i potrzeb! 
+              Świadczymy usługi takie jak profesjonalny <strong>montaż alarmu</strong> oraz precyzyzyjny <strong>montaż kamer IP</strong> z pełną konfiguracją na smartfonie.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black uppercase text-zinc-900 tracking-wider">Nasze Usługi</h4>
+              <ul className="space-y-1 text-zinc-600">
+                <li>• <span className="hover:text-zinc-900 transition-colors">Smart home montaż i konfiguracja</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Montaż kamer IP i systemów wizyjnych</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Montaż alarmu oraz czujników dymu/zalania</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Przełączniki światła WiFi i sterowanie LED</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Konfiguracja routerów i sieci domowych</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Smart klamki dla domu i mieszkań na wynajem</span></li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black uppercase text-zinc-900 tracking-wider">Śląsk Smart Home</h4>
+              <ul className="space-y-1 text-zinc-600">
+                <li>• <span className="hover:text-zinc-900 transition-colors">bielsko-biała smart home</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">żywiec smart home</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">śląsk smart home (Katowice, Tychy, Gliwice)</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Szczyrk, Wisła, Ustroń, Cieszyn</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Pszczyna, Czechowice-Dziedzice, Kęty</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Andrychów, Wadowice, Oświęcim</span></li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black uppercase text-zinc-900 tracking-wider">Małopolska & Kraków</h4>
+              <ul className="space-y-1 text-zinc-600">
+                <li>• <span className="hover:text-zinc-900 transition-colors">Kraków smart home i automatyka</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Wieliczka, Skawina, Myślenice</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Chrzanów, Jaworzno, Trzebinia</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Olkusz, Krzeszowice, Dobczyce</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Instalacja kamer IP Kraków</span></li>
+                <li>• <span className="hover:text-zinc-900 transition-colors">Tani smart home Małopolska</span></li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black uppercase text-zinc-900 tracking-wider">Technologie i Standardy</h4>
+              <p className="text-zinc-500 leading-relaxed">
+                Wdrażamy instalacje w oparciu o bezpieczne protokoły WiFi, Zigbee oraz Thread. Wspieramy integracje z Google Home, Apple HomeKit i Home Assistant. Zapewniamy darmowe konsultacje techniczne na terenie Podbeskidzia, Śląska i Krakowa.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer layout */}
       <footer className="bg-zinc-50 border-t border-zinc-150 py-12 text-zinc-500 text-xs">
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8 items-start text-left">
