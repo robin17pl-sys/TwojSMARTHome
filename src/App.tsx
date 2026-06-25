@@ -27,7 +27,8 @@ import {
   Mail,
   MapPin,
   Wrench,
-  Wifi
+  Wifi,
+  X
 } from "lucide-react";
 import {
   SmartHomeHeaderLogo,
@@ -104,6 +105,20 @@ export default function App() {
     setCurrentPath(path);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Call Widget State
+  const [isCallWidgetOpen, setIsCallWidgetOpen] = useState(false);
+  const [hasUserClosedCallWidget, setHasUserClosedCallWidget] = useState(false);
+
+  useEffect(() => {
+    // Automatically show the popup after 4 seconds to capture leads, unless user closed it
+    const timer = setTimeout(() => {
+      if (!hasUserClosedCallWidget) {
+        setIsCallWidgetOpen(true);
+      }
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [hasUserClosedCallWidget]);
 
   // Lead Checkout Form State
   const [fullname, setFullname] = useState("");
@@ -1701,6 +1716,115 @@ export default function App() {
 
         </div>
       </footer>
+
+      {/* Dynamic, floating call pop-up/widget visible on all pages & versions */}
+      <div id="call-floating-widget" className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+        
+        {/* The actual speech bubble/pop-up panel */}
+        {isCallWidgetOpen && (
+          <div className="pointer-events-auto bg-white border border-zinc-200 rounded-2xl p-5 shadow-2xl max-w-[320px] w-[calc(100vw-3rem)] animate-in slide-in-from-bottom-5 fade-in duration-300 relative flex flex-col gap-3">
+            
+            {/* Elegant horizontal accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-zinc-950 to-emerald-400 rounded-t-2xl" />
+            
+            {/* Close button */}
+            <button 
+              onClick={() => {
+                setIsCallWidgetOpen(false);
+                setHasUserClosedCallWidget(true);
+              }}
+              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 p-1 rounded-full hover:bg-zinc-100 transition-all cursor-pointer"
+              aria-label="Zamknij"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Advisor header */}
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-10 h-10 bg-zinc-950 text-white rounded-full flex items-center justify-center border border-zinc-850 font-extrabold text-[10px] tracking-wider uppercase">
+                  SMART
+                </div>
+                {/* Green active pulse indicator */}
+                <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+              </div>
+              <div>
+                <span className="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider border border-emerald-200">
+                  DORADCA LIVE
+                </span>
+                <h4 className="text-xs font-black text-zinc-950 mt-0.5">Konrad - Ekspert Smart Home</h4>
+              </div>
+            </div>
+
+            {/* Description Text */}
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
+              Masz pytania dotyczące inteligentnego domu, kamer IP lub alarmów? Zadzwoń bezpośrednio! Chętnie doradzę i przygotuję <strong>bezpłatną wycenę</strong>.
+            </p>
+
+            {/* Main Phone Number link */}
+            <a 
+              href="tel:+48500184999"
+              className="group flex items-center justify-between gap-3 bg-zinc-50 hover:bg-zinc-100 border border-zinc-150 p-3 rounded-xl transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 bg-zinc-950 text-white rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                  <PhoneCall className="w-4 h-4 text-emerald-400 animate-bounce" />
+                </div>
+                <div className="text-left">
+                  <span className="block text-[8px] text-zinc-400 uppercase tracking-widest font-semibold">Zadzwoń bezpośrednio</span>
+                  <span className="block text-sm font-black text-zinc-950 font-mono tracking-tight">+48 500 184 999</span>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
+            </a>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <a 
+                href="tel:+48500184999"
+                className="flex-1 bg-zinc-950 hover:bg-zinc-850 text-white text-[11px] font-bold py-2.5 px-4 rounded-xl uppercase tracking-wider transition-all shadow-sm text-center cursor-pointer"
+              >
+                Połącz teraz
+              </a>
+              <button 
+                onClick={() => {
+                  setIsCallWidgetOpen(false);
+                  setHasUserClosedCallWidget(true);
+                }}
+                className="text-zinc-500 hover:text-zinc-900 text-[10px] font-bold py-2 px-3 rounded-lg hover:bg-zinc-50 transition-all cursor-pointer"
+              >
+                Może później
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Floating circular activator button */}
+        <button
+          onClick={() => setIsCallWidgetOpen(!isCallWidgetOpen)}
+          className="pointer-events-auto w-14 h-14 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all relative border border-zinc-850 cursor-pointer"
+          id="btn-call-floating-trigger"
+          title="Zadzwoń do eksperta"
+        >
+          {/* Outer pulsing ring */}
+          <span className="absolute -inset-1.5 rounded-full bg-zinc-950/10 border-2 border-zinc-950/20 animate-ping pointer-events-none" />
+          <span className="absolute -inset-3 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 animate-pulse pointer-events-none" />
+          
+          {isCallWidgetOpen ? (
+            <X className="w-6 h-6 rotate-0 transition-transform duration-300" />
+          ) : (
+            <PhoneCall className="w-5 h-5 text-emerald-400 animate-pulse" />
+          )}
+
+          {/* Unread message count badge */}
+          {!isCallWidgetOpen && !hasUserClosedCallWidget && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 text-[9px] font-black text-white items-center justify-center">1</span>
+            </span>
+          )}
+        </button>
+      </div>
 
     </div>
   );
