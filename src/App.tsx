@@ -73,13 +73,21 @@ const INITIAL_REVIEWS: Review[] = [
 ];
 
 export default function App() {
+  const [lang, setLang] = useState<"PL" | "ENG" | "CZ">("PL");
+
+  const t = (pl: string, eng: string, cz: string) => {
+    if (lang === "ENG") return eng;
+    if (lang === "CZ") return cz;
+    return pl;
+  };
+
   // Configurator state variables
   const [camsSingle, setCamsSingle] = useState(1);
   const [camsDual, setCamsDual] = useState(0);
   const [wifiUpgrade, setWifiUpgrade] = useState<"none" | "wifi6" | "wifi7">("none");
   const [locks, setLocks] = useState(1);
   const [floods, setFloods] = useState(1);
-  const [lights, setLights] = useState(2);
+  const [alarmType, setAlarmType] = useState<"none" | "basic" | "advanced">("basic");
 
   // Promo Code State
   const [promoCode, setPromoCode] = useState("");
@@ -152,30 +160,34 @@ export default function App() {
   const [showPromoBadge, setShowPromoBadge] = useState(true);
 
   // Professional installation is standard and mandatory
-  const includeInstallation = true;
+  const includeInstallation = false;
 
   // Mock receipt/invoice data generated on successful order
   const [orderSummary, setOrderSummary] = useState<any>(null);
 
   // Base pricing declarations
-  const HUB_PRICE = 99;
-  const CAM_SINGLE_UNIT_PRICE = 199;
-  const CAM_DUAL_UNIT_PRICE = 330;
-  const LOCK_UNIT_PRICE = 349;
+  const HUB_PRICE = 59;
+  const CAM_SINGLE_UNIT_PRICE = 250;
+  const CAM_DUAL_UNIT_PRICE = 490;
+  const LOCK_UNIT_PRICE = 590;
   const FLOOD_UNIT_PRICE = 129;
-  const LIGHT_UNIT_PRICE = 99;
-  const WIFI_6_PRICE = 299;
+  const ALARM_BASIC_PRICE = 490;
+  const ALARM_ADVANCED_PRICE = 1200;
+  const WIFI_6_PRICE = 360;
   const WIFI_7_PRICE = 599;
 
   // Real-time pricing calculations
   const camerasPrice = (camsSingle * CAM_SINGLE_UNIT_PRICE) + (camsDual * CAM_DUAL_UNIT_PRICE);
   const locksPrice = locks * LOCK_UNIT_PRICE;
   const floodsPrice = floods * FLOOD_UNIT_PRICE;
-  const lightsPrice = lights * LIGHT_UNIT_PRICE;
+  const alarmPrice = alarmType === "basic" ? ALARM_BASIC_PRICE : alarmType === "advanced" ? ALARM_ADVANCED_PRICE : 0;
   const wifiUpgradePrice = wifiUpgrade === "wifi6" ? WIFI_6_PRICE : wifiUpgrade === "wifi7" ? WIFI_7_PRICE : 0;
 
-  const subtotalItemsOnly = HUB_PRICE + camerasPrice + locksPrice + floodsPrice + lightsPrice + wifiUpgradePrice;
-  const totalItemCount = 1 + camsSingle + camsDual + locks + floods + lights + (wifiUpgrade !== "none" ? 1 : 0);
+  const selectedDevicesCount = camsSingle + camsDual + locks + floods + (alarmType !== "none" ? 1 : 0);
+  const montazPrice = selectedDevicesCount * HUB_PRICE;
+
+  const subtotalItemsOnly = montazPrice + camerasPrice + locksPrice + floodsPrice + alarmPrice + wifiUpgradePrice;
+  const totalItemCount = selectedDevicesCount + (wifiUpgrade !== "none" ? 1 : 0);
 
   // Installation cost logic: 599 zł for up to 3 devices, 100 zł for each subsequent device
   const installationCost = includeInstallation ? (totalItemCount <= 3 ? 599 : 599 + (totalItemCount - 3) * 100) : 0;
@@ -191,13 +203,13 @@ export default function App() {
     const trimmed = code.trim().toUpperCase();
     if (trimmed === "LUMI10" || trimmed === "SMART10" || trimmed === "SMART2026") {
       setAppliedDiscount(10);
-      setPromoSuccess("Kod rabatowy SMART10 został pomyślnie aktywowany! Przyznano 10% zniżki.");
+      setPromoSuccess(t("Kod rabatowy SMART10 został pomyślnie aktywowany! Przyznano 10% zniżki.", "Promo code SMART10 has been successfully activated! 10% discount granted.", "Slevový kód SMART10 byl úspěšně aktivován! Byla poskytnuta sleva 10 %."));
       setPromoError("");
     } else if (trimmed === "") {
-      setPromoError("Wprowadź kod przed zatwierdzeniem.");
+      setPromoError(t("Wprowadź kod przed zatwierdzeniem.", "Enter a code before applying.", "Před použitím zadejte kód."));
       setPromoSuccess("");
     } else {
-      setPromoError("Wprowadzony kod jest niepoprawny lub wygasł.");
+      setPromoError(t("Wprowadzony kod jest niepoprawny lub wygasł.", "The code entered is invalid or has expired.", "Zadaný kód je neplatný nebo vypršel."));
       setPromoSuccess("");
     }
   };
@@ -209,12 +221,12 @@ export default function App() {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
-    if (!fullname.trim()) errors.fullname = "Wpisz imię i nazwisko";
-    if (!email.trim() || !email.includes("@")) errors.email = "Wpisz poprawny adres e-mail";
-    if (!phone.trim() || phone.length < 9) errors.phone = "Wpisz poprawny numer telefonu (min. 9 cyfr)";
-    if (!street.trim()) errors.street = "Ulica i numer budynku są wymagane";
-    if (!postcode.trim() || !/^\d{2}-\d{3}$/.test(postcode)) errors.postcode = "Wpisz kod pocztowy w formacie 00-000";
-    if (!city.trim()) errors.city = "Wpisz miasto";
+    if (!fullname.trim()) errors.fullname = t("Wpisz imię i nazwisko", "Enter your full name", "Zadejte své jméno a příjmení");
+    if (!email.trim() || !email.includes("@")) errors.email = t("Wpisz poprawny adres e-mail", "Enter a valid email address", "Zadejte platnou e-mailovou adresu");
+    if (!phone.trim() || phone.length < 9) errors.phone = t("Wpisz poprawny numer telefonu (min. 9 cyfr)", "Enter a valid phone number (min. 9 digits)", "Zadejte platné telefonní číslo (min. 9 číslic)");
+    if (!street.trim()) errors.street = t("Ulica i numer budynku są wymagane", "Street and building number are required", "Ulice a číslo domu jsou povinné");
+    if (!postcode.trim() || !/^\d{2}-\d{3}$/.test(postcode)) errors.postcode = t("Wpisz kod pocztowy w formacie 00-000", "Enter postal code in format 00-000", "Zadejte PSČ ve formátu 00-000");
+    if (!city.trim()) errors.city = t("Wpisz miasto", "Enter city", "Zadejte město");
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -232,14 +244,15 @@ export default function App() {
     estDeliveryDate.setDate(estDeliveryDate.getDate() + 3); // 3 days for scheduling and installation
 
     const itemsOrdered = [
-      { name: "Centralny Hub Sterujący Twój SMART Home (Baza)", qty: 1, price: HUB_PRICE },
+      { name: "Montaż Twój SMART Home", qty: selectedDevicesCount, price: montazPrice },
       ...(camsSingle > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: camsSingle, price: camsSingle * CAM_SINGLE_UNIT_PRICE }] : []),
       ...(camsDual > 0 ? [{ name: "Kamera Bezprzewodowa SMART Home Cam (Dual)", qty: camsDual, price: camsDual * CAM_DUAL_UNIT_PRICE }] : []),
       ...(wifiUpgrade === "wifi6" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 6 + Konfiguracja", qty: 1, price: WIFI_6_PRICE }] : []),
       ...(wifiUpgrade === "wifi7" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 7 + Konfiguracja", qty: 1, price: WIFI_7_PRICE }] : []),
       ...(locks > 0 ? [{ name: "Zamek Smart Lock Twój SMART Home Lock", qty: locks, price: locksPrice }] : []),
       ...(floods > 0 ? [{ name: "Czujnik Zalania Twój SMART Home Flood", qty: floods, price: floodsPrice }] : []),
-      ...(lights > 0 ? [{ name: "Żarówka RGB Smart Twój SMART Home Light", qty: lights, price: lightsPrice }] : []),
+      ...(alarmType === "basic" ? [{ name: "System Alarmowy Twój SMART Home Alarm (Wersja Podstawowa)", qty: 1, price: ALARM_BASIC_PRICE }] : []),
+      ...(alarmType === "advanced" ? [{ name: "System Alarmowy Twój SMART Home Alarm (Wersja Zaawansowana)", qty: 1, price: ALARM_ADVANCED_PRICE }] : []),
       ...(includeInstallation ? [{ name: `Profesjonalny montaż i konfiguracja (${totalItemCount} urządzeń)`, qty: 1, price: installationCost }] : [])
     ];
 
@@ -371,7 +384,7 @@ export default function App() {
     setCamsDual(0);
     setLocks(1);
     setFloods(1);
-    setLights(2);
+    setAlarmType("basic");
     setPromoCode("");
     setAppliedDiscount(0);
     setPromoSuccess("");
@@ -391,7 +404,7 @@ export default function App() {
       {/* Top Banner Offer */}
       {showPromoBadge && (
         <div className="bg-zinc-950 text-white text-[11px] font-bold tracking-wider py-2 uppercase px-4 text-center relative flex justify-center items-center">
-          <span>🎁 Wyjątkowa oferta: Profesjonalny montaż i bezpłatny transport + 10% rabatu z kodem <strong className="bg-white/10 px-2 py-0.5 rounded font-mono border border-white/20">SMART10</strong></span>
+          <span>{t("🎁 Wyjątkowa oferta: Profesjonalny montaż i bezpłatny transport + 10% rabatu z kodem", "🎁 Special Offer: Professional installation & free shipping + 10% discount with code", "🎁 Výjimečná nabídka: Profesionální montáž a doprava zdarma + 10% sleva s kódem")} <strong className="bg-white/10 px-2 py-0.5 rounded font-mono border border-white/20">SMART10</strong></span>
           <button 
             onClick={() => setShowPromoBadge(false)} 
             className="absolute right-4 hover:opacity-75 focus:outline-none p-1 font-mono text-xs cursor-pointer"
@@ -414,6 +427,21 @@ export default function App() {
 
           <nav className="hidden md:flex items-center gap-8 text-xs font-bold text-zinc-650 uppercase tracking-wider">
             <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault();
+                setCheckoutStep("config");
+                if (currentPath !== "/") {
+                  navigateTo("/");
+                } else {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+              className="hover:text-zinc-950 transition-colors"
+            >
+              {t("Home", "Home", "Domů")}
+            </a>
+            <a 
               href="#cechy" 
               onClick={(e) => {
                 if (currentPath !== "/") {
@@ -427,7 +455,7 @@ export default function App() {
               }}
               className="hover:text-zinc-950 transition-colors"
             >
-              Zalety
+              {t("Zalety", "Advantages", "Výhody")}
             </a>
             <a 
               href="#konfigurator" 
@@ -443,7 +471,7 @@ export default function App() {
               }}
               className="hover:text-zinc-950 transition-colors"
             >
-              Kreator zestawu
+              {t("Kreator zestawu", "Kit Creator", "Konfigurátor")}
             </a>
             <a 
               href="#opinie" 
@@ -459,7 +487,7 @@ export default function App() {
               }}
               className="hover:text-zinc-950 transition-colors"
             >
-              Referencje
+              {t("Referencje", "Reviews", "Reference")}
             </a>
             <a 
               href="#kontakt" 
@@ -475,11 +503,29 @@ export default function App() {
               }}
               className="hover:text-zinc-950 transition-colors"
             >
-              Kontakt
+              {t("Kontakt", "Contact", "Kontakt")}
             </a>
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Language Switcher */}
+            <div className="flex bg-zinc-100 p-0.5 rounded-xl border border-zinc-200">
+              {(["PL", "ENG", "CZ"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                    lang === l
+                      ? "bg-zinc-950 text-white shadow-3xs"
+                      : "text-zinc-500 hover:text-zinc-950"
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+
             <a 
               href="#konfigurator" 
               onClick={(e) => {
@@ -494,7 +540,7 @@ export default function App() {
               }}
               className="bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-2.5 px-5 rounded-xl uppercase tracking-wider transition-all shadow-3xs cursor-pointer flex items-center gap-1.5"
             >
-              <ShoppingBag className="w-3.5 h-3.5" /> Skonfiguruj
+              <ShoppingBag className="w-3.5 h-3.5" /> {t("Skonfiguruj", "Configure", "Konfigurovat")}
             </a>
           </div>
         </div>
@@ -504,13 +550,13 @@ export default function App() {
       <div className="bg-zinc-950 border-b border-zinc-900 text-zinc-100 py-3 overflow-hidden relative select-none">
         <div className="flex w-max animate-marquee text-[11px] md:text-xs font-semibold tracking-wider uppercase font-sans">
           <span className="px-6 flex items-center gap-2">
-            ✨ Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem. <strong className="text-amber-400">JESTEŚ W DOBRYM MIEJSCU!</strong>
+            ✨ {t("Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem.", "Need Cameras for Home or Business? SMART Locks, Flood sensor, Temperature and Humidity Sensor, Alarm System? Faster WiFi with configuration & installation.", "Potřebujete kamery pro dům nebo firmu? SMART zámky, záplavový senzor, senzor teploty a vlhkosti, alarm? Rychlejší WiFi s konfigurací a instalací.")} <strong className="text-amber-400">{t("JESTEŚ W DOBRYM MIEJSCU!", "YOU ARE IN THE RIGHT PLACE!", "JSTE NA SPRÁVNÉM MÍSTĚ!")}</strong>
           </span>
           <span className="px-6 flex items-center gap-2">
-            ✨ Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem. <strong className="text-amber-400">JESTEŚ W DOBRYM MIEJSCU!</strong>
+            ✨ {t("Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem.", "Need Cameras for Home or Business? SMART Locks, Flood sensor, Temperature and Humidity Sensor, Alarm System? Faster WiFi with configuration & installation.", "Potřebujete kamery pro dům nebo firmu? SMART zámky, záplavový senzor, senzor teploty a vlhkosti, alarm? Rychlejší WiFi s konfigurací a instalací.")} <strong className="text-amber-400">{t("JESTEŚ W DOBRYM MIEJSCU!", "YOU ARE IN THE RIGHT PLACE!", "JSTE NA SPRÁVNÉM MÍSTĚ!")}</strong>
           </span>
           <span className="px-6 flex items-center gap-2">
-            ✨ Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem. <strong className="text-amber-400">JESTEŚ W DOBRYM MIEJSCU!</strong>
+            ✨ {t("Potrzebujesz Kamer do Domu lub Firmy? SMART Klamki do obiektu, Czujnika zalania, Czujnika Temperatury i Wilgotności, Systemu Alarmowego? Zmiany WiFi na szybsze z konfiguracją i Montażem.", "Need Cameras for Home or Business? SMART Locks, Flood sensor, Temperature and Humidity Sensor, Alarm System? Faster WiFi with configuration & installation.", "Potřebujete kamery pro dům nebo firmu? SMART zámky, záplavový senzor, senzor teploty a vlhkosti, alarm? Rychlejší WiFi s konfigurací a instalací.")} <strong className="text-amber-400">{t("JESTEŚ W DOBRYM MIEJSCU!", "YOU ARE IN THE RIGHT PLACE!", "JSTE NA SPRÁVNÉM MÍSTĚ!")}</strong>
           </span>
         </div>
       </div>
@@ -587,11 +633,19 @@ export default function App() {
           {/* Left Text Detail */}
           <div className="md:col-span-6 space-y-6">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-zinc-950 leading-[1.1]">
-              Twój dom. Mądrzejszy, Bezpieczniejszy i Funkcjonalny!
+              {t("Twój dom. Mądrzejszy, Bezpieczniejszy i Funkcjonalny!", "Your home. Smarter, Safer, and Functional!", "Váš domov. Chytřejší, bezpečnější a funkčnější!")}
             </h1>
             
             <p className="text-sm md:text-base text-zinc-500 leading-relaxed max-w-lg">
-              System <strong>Twój SMART Home</strong> to rewolucja w domowej automatyzacji. Całkowicie bezprzewodowe elementy instalowane bezpośrednio przez naszą firmę. Bez kucia ścian, bez zmartwień i bez dodatkowych opłat abonamentowych.
+              {lang === "PL" && (
+                <>System <strong>Twój SMART Home</strong> to rewolucja w domowej automatyzacji. Całkowicie bezprzewodowe elementy instalowane bezpośrednio przez naszą firmę. Bez kucia ścian, bez zmartwień i bez dodatkowych opłat abonamentowych.</>
+              )}
+              {lang === "ENG" && (
+                <>The <strong>Your SMART Home</strong> system is a revolution in home automation. Fully wireless components installed directly by our company. No wall breaking, no worries, and no monthly subscription fees.</>
+              )}
+              {lang === "CZ" && (
+                <>Systém <strong>Váš SMART Home</strong> představuje revoluci v domácí automatizaci. Plně bezdrátové prvky instalované přímo naší firmou. Bez sekání do zdí, bez starostí a bez dalších poplatků za předplatné.</>
+              )}
             </p>
 
             {/* Micro Rating Indicator */}
@@ -602,7 +656,7 @@ export default function App() {
                 ))}
               </div>
               <span className="text-xs font-extrabold text-zinc-900 font-mono">4.9/5</span>
-              <span className="text-[11px] text-zinc-400 font-bold border-l border-zinc-150 pl-3">Ponad 180 zadowolonych klientów!</span>
+              <span className="text-[11px] text-zinc-400 font-bold border-l border-zinc-150 pl-3">{t("Ponad 180 zadowolonych klientów!", "Over 180 satisfied customers!", "Více než 180 spokojených zákazníků!")}</span>
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
@@ -610,13 +664,13 @@ export default function App() {
                 href="#konfigurator" 
                 className="bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-3.5 px-7 rounded-xl uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
               >
-                Stwórz własny zestaw <ArrowRight className="w-4 h-4" />
+                {t("Stwórz własny zestaw", "Create your own kit", "Vytvořte si vlastní sadu")} <ArrowRight className="w-4 h-4" />
               </a>
               <a 
                 href="#cechy" 
                 className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold py-3.5 px-7 rounded-xl uppercase tracking-wider transition-all"
               >
-                Zobacz jak to działa
+                {t("Zobacz jak to działa", "See how it works", "Podívejte se, jak to funguje")}
               </a>
             </div>
           </div>
@@ -643,10 +697,10 @@ export default function App() {
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center max-w-xl mx-auto mb-12">
               <h2 className="text-2xl md:text-3xl font-extrabold text-zinc-950 tracking-tight">
-                Dlaczego warto wybrać Twój SMART Home?
+                {t("Dlaczego warto wybrać Twój SMART Home?", "Why choose Your SMART Home?", "Proč si vybrat Váš SMART Home?")}
               </h2>
               <p className="text-zinc-500 text-xs md:text-sm mt-2">
-                Trzy fundamenty nowoczesnego zarządzania domem: zero problematycznych instalacji, zero abonamentów, pełne zaufanie.
+                {t("Trzy fundamenty nowoczesnego zarządzania domem: zero problematycznych instalacji, zero abonamentów, pełne zaufanie.", "Three pillars of modern home management: zero complex installations, zero subscription fees, full trust.", "Tři pilíře moderní správy domácnosti: nulové složité instalace, nulové předplatné, plná důvěra.")}
               </p>
             </div>
 
@@ -658,9 +712,9 @@ export default function App() {
                   <div className="p-3 bg-zinc-100 text-zinc-950 rounded-xl w-fit mb-4 border border-zinc-200">
                     <Check className="w-5 h-5 stroke-[2]" />
                   </div>
-                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">Bezinwazyjny montaż w cenie</h3>
+                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">{t("Bezinwazyjny montaż w cenie", "Non-invasive installation included", "Neinvazivní montáž v ceně")}</h3>
                   <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-                    Nasi certyfikowani instalatorzy bezinwazyjnie zamontują i skonfigurują wszystkie elementy. Czysto, szybko i bez zmartwień!
+                    {t("Nasi certyfikowani instalatorzy bezinwazyjnie zamontują i skonfigurują wszystkie elementy. Czysto, szybko i bez zmartwień!", "Our certified installers will non-invasively mount and configure all components. Clean, fast, and worry-free!", "Naši certifikovaní technici neinvazivně namontují a nakonfigurují všechny prvky. Čistě, rychle a bez starostí!")}
                   </p>
                 </div>
               </div>
@@ -671,9 +725,9 @@ export default function App() {
                   <div className="p-3 bg-zinc-100 text-zinc-950 rounded-xl w-fit mb-4 border border-zinc-200">
                     <Shield className="w-5 h-5 stroke-[2]" />
                   </div>
-                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">Brak opłat abonamentowych</h3>
+                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">{t("Brak opłat abonamentowych", "No monthly subscription fees", "Žádné měsíční poplatky")}</h3>
                   <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-                    Kupujesz urządzenie raz na zawsze. Otrzymujesz powiadomienia na telefon, nagrania z kamer w technologii offline i darmową aplikację całkowicie za darmo.
+                    {t("Kupujesz urządzenie raz na zawsze. Otrzymujesz powiadomienia na telefon, nagrania z kamer w technologii offline i darmową aplikację całkowicie za darmo.", "You buy the device once and own it forever. Get phone notifications, offline camera recordings, and a completely free app with no extra charges.", "Zařízení si koupíte jednou provždy. Získáte upozornění na telefon, záznamy z kamer v offline režimu a bezplatnou aplikaci zcela zdarma.")}
                   </p>
                 </div>
               </div>
@@ -682,11 +736,11 @@ export default function App() {
               <div className="p-6 rounded-2xl border border-zinc-150/80 bg-zinc-50/30 flex flex-col justify-between">
                 <div>
                   <div className="p-3 bg-zinc-100 text-zinc-950 rounded-xl w-fit mb-4 border border-zinc-200">
-                    <Sparkles className="w-5 h-5 stroke-[2]" />
+                    <Shield className="w-5 h-5 stroke-[2]" />
                   </div>
-                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">Sceny SmartRule</h3>
+                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">{t("Bezprzewodowy alarm", "Wireless alarm system", "Bezdrátový alarm")}</h3>
                   <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-                    Zasada synergii: gdy sensor zalania wykryje wodę, centrala automatycznie zarygluje klamki i włączy oświetlenie ostrzegawcze. Wszystko zintegrowane.
+                    {t("Nowoczesny alarm dla Twojego DOMU I FIRMY. Bezinwazyjny montaż bez przeciągania kabli oraz pełne zdalne sterowanie w zasięgu Twojej ręki.", "A modern alarm system for your HOME & BUSINESS. Non-invasive installation without pulling cables and full remote control at your fingertips.", "Moderní alarm pro váš DOMOV I FIRMU. Neinvazivní montáž bez tahání kabelů a plné dálkové ovládání na dosah ruky.")}
                   </p>
                 </div>
               </div>
@@ -695,11 +749,11 @@ export default function App() {
               <div className="p-6 rounded-2xl border border-zinc-150/80 bg-zinc-50/30 flex flex-col justify-between">
                 <div>
                   <div className="p-3 bg-zinc-100 text-zinc-950 rounded-xl w-fit mb-4 border border-zinc-200">
-                    <Clock className="w-5 h-5 stroke-[2]" />
+                    <Lock className="w-5 h-5 stroke-[2]" />
                   </div>
-                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">Ultra-wydajne baterie</h3>
+                  <h3 className="font-extrabold uppercase tracking-wider text-[11px] text-zinc-900">{t("Zdalna SMART klamka", "Remote SMART lock handle", "Chytrá SMART klika")}</h3>
                   <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-                    Nigdy więcej ciągłych ładowań. Energooszczędny procesor sprawia, że baterie w czujkach i zamkach wytrzymują od 12 do 24 miesięcy ciągłej pracy.
+                    {t("Wygodne otwieranie na 4 sposoby: zdalnie z poziomu aplikacji, zbliżeniową kartą RFID, bezpiecznym kodem PIN lub tradycyjnym kluczem awaryjnym. Pełna kontrola dostępu w Twoich rękach.", "Convenient opening in 4 ways: remotely via app, proximity RFID card, secure PIN code, or traditional emergency key. Complete access control in your hands.", "Pohodlné otevírání na 4 způsoby: na dálku z aplikace, bezkontaktní RFID kartou, bezpečným PIN kódem nebo tradičním nouzovým klíčem. Kompletní kontrola přístupu ve vašich rukou.")}
                   </p>
                 </div>
               </div>
@@ -719,58 +773,74 @@ export default function App() {
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 border border-emerald-100">
                 <CheckCircle2 className="w-6 h-6 stroke-[2]" />
               </div>
-              <h2 className="text-2xl font-black text-zinc-950 leading-tight">Zgłoszenie zostało wysłane!</h2>
-              <p className="text-xs text-zinc-400 mt-1 capitalize">ID zapytania: <span className="font-mono font-bold text-zinc-800">{orderSummary.id}</span></p>
+              <h2 className="text-2xl font-black text-zinc-950 leading-tight">{t("Zgłoszenie zostało wysłane!", "Application has been sent!", "Žádost byla odeslána!")}</h2>
+              <p className="text-xs text-zinc-400 mt-1 capitalize">{t("ID zapytania:", "Inquiry ID:", "ID poptávky:")} <span className="font-mono font-bold text-zinc-800">{orderSummary.id}</span></p>
             </div>
 
             <div className="bg-zinc-50 rounded-2xl p-4.5 border border-zinc-100 text-xs space-y-3 mb-6">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Data zgłoszenia:</span>
+                <span className="text-zinc-400">{t("Data zgłoszenia:", "Application date:", "Datum podání:")}</span>
                 <span className="font-bold text-zinc-850">{orderSummary.date}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Kontakt:</span>
+                <span className="text-zinc-400">{t("Kontakt:", "Contact:", "Kontakt:")}</span>
                 <span className="font-bold text-zinc-850">{orderSummary.fullname}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Adres montażu:</span>
+                <span className="text-zinc-400">{t("Adres montażu:", "Installation address:", "Adresa montáže:")}</span>
                 <span className="font-bold text-zinc-850 text-right max-w-[200px] truncate" title={orderSummary.address}>{orderSummary.address}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Status wyceny:</span>
-                <span className="font-bold text-emerald-700">{orderSummary.paymentMethodName}</span>
+                <span className="text-zinc-400">{t("Status wyceny:", "Quote status:", "Stav kalkulace:")}</span>
+                <span className="font-bold text-emerald-700">
+                  {orderSummary.paymentMethodName.includes("Bezpłatna") 
+                    ? t("Bezpłatna wycena i audyt u klienta", "Free on-site estimate & audit", "Bezplatný odhad a audit na místě") 
+                    : orderSummary.paymentMethodName}
+                </span>
               </div>
               <div className="flex justify-between pt-2 border-t border-zinc-200">
-                <span className="text-zinc-400 font-semibold">Proponowany termin audytu:</span>
+                <span className="text-zinc-400 font-semibold">{t("Proponowany termin audytu:", "Proposed audit date:", "Navrhovaný termín auditu:")}</span>
                 <span className="font-bold text-zinc-950 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{orderSummary.deliveryDate}</span>
               </div>
             </div>
 
             <div className="space-y-3 mb-6">
-              <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-zinc-400 border-b border-zinc-100 pb-1">Specyfikacja wybranej konfiguracji</h4>
+              <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-zinc-400 border-b border-zinc-100 pb-1">{t("Specyfikacja wybranej konfiguracji", "Specification of the selected configuration", "Specifikace zvolené konfigurace")}</h4>
               
               {orderSummary.itemsOrdered.map((item: any, i: number) => (
                 <div key={i} className="flex justify-between text-xs py-1">
-                  <span className="text-zinc-650">{item.name} <strong className="text-zinc-905">x{item.qty}</strong></span>
+                  <span className="text-zinc-650">
+                    {item.name.includes("Montaż Twój SMART Home") ? t("Montaż Twój SMART Home", "Twój SMART Home Installation", "Instalace Twój SMART Home") :
+                     item.name.includes("Singiel") ? t("Kamera Bezprzewodowa (Singiel)", "Wireless Camera (Single)", "Bezdrátová kamera (Single)") :
+                     item.name.includes("Dual") ? t("Kamera Bezprzewodowa (Dual)", "Wireless Camera (Dual)", "Bezdrátová kamera (Dual)") :
+                     item.name.includes("WiFi 6") ? t("Aktualizacja WiFi do DualBand WiFi 6", "WiFi Upgrade to DualBand WiFi 6", "Upgrade WiFi na DualBand WiFi 6") :
+                     item.name.includes("WiFi 7") ? t("Aktualizacja WiFi do DualBand WiFi 7", "WiFi Upgrade to DualBand WiFi 7", "Upgrade WiFi na DualBand WiFi 7") :
+                     item.name.includes("Zamek") ? t("Zamek Smart Lock Twój SMART Home Lock", "Smart Lock Your SMART Home Lock", "Zámek Smart Lock Váš SMART Home Lock") :
+                     item.name.includes("Zalania") ? t("Czujnik Zalania Twój SMART Home Flood", "Water Leak Sensor Your SMART Home Flood", "Senzor zatopení Váš SMART Home Flood") :
+                     item.name.includes("Podstawowa") ? t("System Alarmowy (Wersja Podstawowa)", "Alarm System (Basic Version)", "Poplašný systém (Základní verze)") :
+                     item.name.includes("Zaawansowana") ? t("System Alarmowy (Wersja Zaawansowana)", "Alarm System (Advanced Version)", "Poplašný systém (Pokročilá verze)") :
+                     item.name.includes("konfiguracja") ? t("Profesjonalny montaż i konfiguracja", "Professional installation and configuration", "Profesionální montáž a konfigurace") :
+                     item.name} <strong className="text-zinc-905">x{item.qty}</strong>
+                  </span>
                   <span className="text-zinc-900 font-bold font-mono">{item.price} zł</span>
                 </div>
               ))}
 
               <div className="flex justify-between text-xs py-1 border-t border-zinc-100 pt-2">
-                <span className="text-zinc-450">Dojazd i audyt na miejscu:</span>
+                <span className="text-zinc-450">{t("Dojazd i audyt na miejscu:", "Travel & audit on site:", "Příjezd a audit na místě:")}</span>
                 <span className="text-emerald-700 font-bold">
-                  Darmowy
+                  {t("Darmowy", "Free", "Zdarma")}
                 </span>
               </div>
               {orderSummary.discountAmount > 0 && (
                 <div className="flex justify-between text-xs py-1 text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-                  <span>Uwzględniony rabat konfiguratora (10%):</span>
+                  <span>{t("Uwzględniony rabat konfiguratora (10%):", "Configurator discount included (10%):", "Zahrnutá sleva konfigurátoru (10%):")}</span>
                   <span className="font-bold font-mono">-{orderSummary.discountAmount} zł</span>
                 </div>
               )}
 
               <div className="flex justify-between text-base py-3 border-t border-dashed border-zinc-200 mt-2 font-black text-zinc-950">
-                <span>Szacowany koszt zestawu z montażem:</span>
+                <span>{t("Szacowany koszt zestawu z montażem:", "Estimated cost with installation:", "Odhadovaná cena sady s montáží:")}</span>
                 <span className="font-mono text-lg text-emerald-700">{orderSummary.finalTotalPrice} zł</span>
               </div>
             </div>
@@ -780,7 +850,7 @@ export default function App() {
                 onClick={handleReset}
                 className="flex-1 bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-3.5 rounded-xl uppercase tracking-wider transition-all shadow-3xs cursor-pointer text-center"
               >
-                Konfiguruj nowy zestaw
+                {t("Konfiguruj nowy zestaw", "Configure a new kit", "Konfigurovat novou sadu")}
               </button>
             </div>
           </div>
@@ -789,13 +859,13 @@ export default function App() {
           <div>
             <div className="text-center max-w-xl mx-auto mb-10">
               <div className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-zinc-100 rounded-full text-[10px] font-extrabold text-zinc-800 uppercase tracking-widest mb-2">
-                Zbuduj swój inteligentny dom
+                {t("Zbuduj swój inteligentny dom", "Build your smart home", "Sestavte si svůj chytrý domov")}
               </div>
               <h2 className="text-2xl md:text-3xl font-black text-zinc-950 tracking-tight">
-                Interaktywny Kreator Zestawu
+                {t("Kreator Zestawu", "Kit Creator", "Konfigurátor sady")}
               </h2>
               <p className="text-zinc-500 text-xs md:text-sm mt-1">
-                Wybierz dowolną liczbę elementów, a serce systemu — Centralę Sterującą (Hub) — otrzymasz już w pakiecie podstawowym.
+                {t("Wybierz dowolną liczbę elementów, które chcesz zainstalować w swoim inteligentnym domu.", "Select any number of items you want to install in your smart home.", "Vyberte libovolný počet prvků, které chcete nainstalovat do svého chytrého domova.")}
               </p>
             </div>
 
@@ -807,7 +877,7 @@ export default function App() {
                 {/* 1. Base Hub Card (fixed) */}
                 <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex items-center justify-between shadow-3xs relative overflow-hidden">
                   <div className="absolute right-0 top-0 bg-zinc-900 text-white text-[9px] font-bold py-1 px-3 uppercase tracking-wider rounded-bl-xl font-mono">
-                    W zestawie
+                    {t("W zestawie", "Included", "V sadě")}
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="p-2 bg-zinc-50 border border-zinc-150 rounded-xl flex items-center justify-center">
@@ -815,16 +885,20 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Centrala Inteligentnego Domu Twój SMART Home Hub
+                        {t("Montaż Twój SMART Home", "Your SMART Home Installation", "Montáž Váš SMART Home")}
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Serce systemu, łączy moduły w bezpieczną sieć bezprzewodową. Zapewnia powiadomienia push i sterowanie.
+                        {t("Profesjonalny montaż już od 59 zł dla 1 urządzenia. Bezpłatny dojazd do klienta.", "Professional installation from 59 PLN per 1 device. Free customer visit.", "Profesionální montáž již od 59 Kč za 1 zařízení. Bezplatná doprava k zákazníkovi.")}
                       </p>
                     </div>
                   </div>
                   <div className="text-right pl-4">
-                    <span className="font-mono text-sm font-black text-zinc-900 whitespace-nowrap">{HUB_PRICE} zł</span>
-                    <p className="text-[10px] text-zinc-400 tracking-wider font-bold">1 SZTUKA</p>
+                    <span className="font-mono text-sm font-black text-zinc-900 whitespace-nowrap">{montazPrice} zł</span>
+                    <p className="text-[10px] text-zinc-400 tracking-wider font-bold uppercase">
+                      {lang === "PL" && (selectedDevicesCount === 1 ? "1 URZĄDZENIE" : (selectedDevicesCount >= 2 && selectedDevicesCount <= 4) ? `${selectedDevicesCount} URZĄDZENIA` : `${selectedDevicesCount} URZĄDZEŃ`)}
+                      {lang === "ENG" && (selectedDevicesCount === 1 ? "1 DEVICE" : `${selectedDevicesCount} DEVICES`)}
+                      {lang === "CZ" && (selectedDevicesCount === 1 ? "1 ZAŘÍZENÍ" : `${selectedDevicesCount} ZAŘÍZENÍ`)}
+                    </p>
                   </div>
                 </div>
 
@@ -836,10 +910,10 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Kamery Bezprzewodowe Twój SMART Home Cam HD
+                        {t("Kamery Bezprzewodowe Twój SMART Home Cam HD", "Wireless Cameras Your SMART Home Cam HD", "Bezdrátové kamery Váš SMART Home Cam HD")}
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Bezprzewodowe kamery z wbudowanym trybem nocnym (IR), detekcją ruchu i zasilaniem akumulatorowym. Wybierz wersję Singiel, Dual lub obie jednocześnie!
+                        {t("Bezprzewodowe kamery z wbudowanym trybem nocnym (IR), detekcją ruchu i zasilaniem akumulatorowym. Wybierz wersję Singiel, Dual lub obie jednocześnie!", "Wireless cameras with built-in night vision (IR), motion detection, and battery power. Choose Single, Dual, or both!", "Bezdrátové kamery s integrovaným nočním viděním (IR), detekcí pohybu a akumulátorovým napájením. Zvolte verzi Single, Dual nebo obě najednou!")}
                       </p>
                     </div>
                   </div>
@@ -849,10 +923,10 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">Wersja Singiel</span>
-                          <span className="text-[10px] bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-md font-mono font-bold">199 zł / szt.</span>
+                          <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">{t("Wersja Singiel", "Single Version", "Verze Single")}</span>
+                          <span className="text-[10px] bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-md font-mono font-bold">{CAM_SINGLE_UNIT_PRICE} zł / {t("szt.", "pcs", "ks")}</span>
                         </div>
-                        <p className="text-[10px] text-zinc-400 mt-0.5">Podstawowy obiektyw HD 1080p, szeroki kąt widzenia 110°.</p>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">{t("Podstawowy obiektyw HD 1080p, szeroki kąt widzenia 110°.", "Basic HD 1080p lens, wide 110° angle of view.", "Základní objektiv HD 1080p, široký úhel záběru 110°.")}</p>
                       </div>
                       <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-150 p-1 rounded-lg self-end sm:self-center">
                         <button 
@@ -877,10 +951,10 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-dashed border-zinc-150">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">Wersja Dual</span>
-                          <span className="text-[10px] bg-zinc-950 text-white px-2 py-0.5 rounded-md font-mono font-bold">330 zł / szt.</span>
+                          <span className="text-[11px] font-extrabold text-zinc-900 uppercase tracking-wide">{t("Wersja Dual", "Dual Version", "Verze Dual")}</span>
+                          <span className="text-[10px] bg-zinc-950 text-white px-2 py-0.5 rounded-md font-mono font-bold">{CAM_DUAL_UNIT_PRICE} zł / {t("szt.", "pcs", "ks")}</span>
                         </div>
-                        <p className="text-[10px] text-zinc-400 mt-0.5">Szerokokątny obiektyw 2.5K sterowany zdalnie, kąt widzenia do 180°.</p>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">{t("Szerokokątny obiektyw 2.5K sterowany zdalnie, kąt widzenia do 180°.", "Wide-angle 2.5K lens controlled remotely, up to 180° angle of view.", "Širokoúhlý objektiv 2.5K s dálkovým ovládáním, úhel záběru až 180°.")}</p>
                       </div>
                       <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-150 p-1 rounded-lg self-end sm:self-center">
                         <button 
@@ -911,12 +985,12 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Zamek Smart Lock Twój SMART Home Lock
+                        {t("Zamek Smart Lock Twój SMART Home Lock", "Smart Lock Your SMART Home Lock", "Zámek Smart Lock Váš SMART Home Lock")}
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Bezpieczny rygiel elektromechaniczny na drzwi wejściowe. Otwieranie kodem PIN (goście), aplikacją lub brelokiem NFC.
+                        {t("Bezpieczny rygiel elektromechaniczny na drzwi wejściowe. Otwieranie kodem PIN (goście), aplikacją lub brelokiem NFC, a nawet odciskiem palca.", "Secure electromechanical bolt for front doors. Opening with PIN code (guests), app, NFC fob, or even fingerprint.", "Bezpečný elektromechanický zámek pro vstupní dveře. Otevírání pomocí PIN kódu (hosté), aplikace, NFC klíčenky nebo otisku prstu.")}
                       </p>
-                      <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">+{LOCK_UNIT_PRICE} zł za sztukę</span>
+                      <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">+{LOCK_UNIT_PRICE} zł {t("za sztukę", "per piece", "za kus")}</span>
                     </div>
                   </div>
                   
@@ -946,12 +1020,12 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Czujnik Zalania Twój SMART Home Flood
+                        {t("Czujnik Zalania Twój SMART Home Flood", "Water Leak Sensor Your SMART Home Flood", "Senzor zatopení Váš SMART Home Flood")}
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Kompaktowy detektor cieczy do kuchni, łazienki lub kotłowni. Błyskawicznie alarmuje w przypadku pierwszej nieszczelności rury.
+                        {t("Kompaktowy detektor cieczy do kuchni, łazienki lub kotłowni. Błyskawicznie alarmuje w przypadku pierwszej nieszczelności rury.", "Compact liquid detector for kitchen, bathroom, or boiler room. Instantly alerts at the first sign of a pipe leak.", "Kompaktní detektor kapalin pro kuchyň, koupelnu nebo kotelnu. Okamžitě upozorní při prvním úniku vody z potrubí.")}
                       </p>
-                      <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">+{FLOOD_UNIT_PRICE} zł za sztukę</span>
+                      <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">+{FLOOD_UNIT_PRICE} zł {t("za sztukę", "per piece", "za kus")}</span>
                     </div>
                   </div>
                   
@@ -973,39 +1047,71 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 5. Smart RGB Lights bulb */}
-                <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
+                {/* 5. Bezprzewodowy System Alarmowy */}
+                <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-zinc-50 text-zinc-900 border border-zinc-150 rounded-xl shrink-0">
-                      <Lightbulb className="w-5 h-5 text-zinc-950 stroke-[1.75]" />
+                      <Shield className="w-5 h-5 text-zinc-950 stroke-[1.75]" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Żarówka RGB Smart Twój SMART Home Light
+                      <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5 flex-wrap">
+                        {t("Bezprzewodowy System Alarmowy", "Wireless Alarm System", "Bezdrátový poplašný systém")} <span className="bg-zinc-950 text-white px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide">{t("Bez kabli i wiercenia", "No cables & drilling", "Bez kabelů a vrtání")}</span>
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Zmień barwę i jasność oświetlenia według humoru. Pełne spektrum barw RGB, ciepłe-zimne odcienie bieli, standardowy gwint E27.
+                        {t("Nowoczesny alarm dla Twojego DOMU I FIRMY. Szybki, bezinwazyjny montaż z pełnym zdalnym sterowaniem w aplikacji na smartfonie. Wybierz wersję dopasowaną do Twoich potrzeb.", "A modern alarm system for your HOME & BUSINESS. Fast, non-invasive installation with full remote control in the smartphone app. Choose the version tailored to your needs.", "Moderní alarm pro váš DOMOV I FIRMU. Rychlá, neinvazivní montáž s plným dálkovým ovládáním v aplikaci na chytrém telefonu. Zvolte verzi přizpůsobenou vašim potřebám.")}
                       </p>
-                      <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">+{LIGHT_UNIT_PRICE} zł za sztukę</span>
                     </div>
                   </div>
-                  
-                  {/* Plus/minus buttons */}
-                  <div className="flex items-center gap-3.5 self-end sm:self-center bg-zinc-50 border border-zinc-150 p-1.5 rounded-xl">
-                    <button 
-                      onClick={() => setLights(Math.max(0, lights - 1))}
-                      className="w-8 h-8 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
+
+                  <div className="border-t border-zinc-100 pt-3.5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAlarmType("none")}
+                      className={`flex-1 min-w-[120px] text-[10px] font-extrabold uppercase px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-center flex flex-col items-center justify-center gap-1.5 ${
+                        alarmType === "none"
+                          ? "bg-zinc-950 border-zinc-950 text-white shadow-3xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
+                      }`}
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <span className="font-extrabold">{t("Brak alarmu", "No Alarm", "Žádný alarm")}</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">(0 zł)</span>
                     </button>
-                    <span className="font-mono text-xs font-extrabold w-5 text-center text-zinc-900">{lights}</span>
-                    <button 
-                      onClick={() => setLights(Math.min(12, lights + 1))}
-                      className="w-8 h-8 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-700 transition-colors cursor-pointer"
+                    <button
+                      type="button"
+                      onClick={() => setAlarmType("basic")}
+                      className={`flex-1 min-w-[120px] text-[10px] font-extrabold uppercase px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-center flex flex-col items-center justify-center gap-1.5 ${
+                        alarmType === "basic"
+                          ? "bg-zinc-950 border-zinc-950 text-white shadow-2xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
+                      }`}
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <span className="font-extrabold">{t("Alarm Podstawowy 🛡️", "Basic Alarm 🛡️", "Základní alarm 🛡️")}</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{ALARM_BASIC_PRICE} zł</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAlarmType("advanced")}
+                      className={`flex-1 min-w-[120px] text-[10px] font-extrabold uppercase px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-center flex flex-col items-center justify-center gap-1.5 ${
+                        alarmType === "advanced"
+                          ? "bg-zinc-950 border-zinc-950 text-white shadow-2xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
+                      }`}
+                    >
+                      <span className="font-extrabold">{t("Alarm Zaawansowany 🚀", "Advanced Alarm 🚀", "Pokročilý alarm 🚀")}</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{ALARM_ADVANCED_PRICE} zł</span>
                     </button>
                   </div>
+                  
+                  {alarmType === "basic" && (
+                    <p className="text-[10px] text-zinc-400 bg-zinc-50 p-2.5 rounded-xl border border-zinc-100 leading-relaxed">
+                      <strong>{t("Zestaw podstawowy:", "Basic set:", "Základní sada:")}</strong> {t("Bezprzewodowa centrala alarmowa, czujniki ruchu (PIR), głośny sygnalizator akustyczny (syrena wewnętrzna) oraz 2 piloty sterujące. Optymalny dla mniejszych budynków lub mieszkań.", "Wireless control panel, motion sensors (PIR), loud sounder (internal siren), and 2 remote controls. Optimal for smaller buildings or apartments.", "Bezdrátová ústředna, pohybová čidla (PIR), hlasitý vnitřní siréna a 2 dálkové ovladače. Optimální pro menší objekty nebo byty.")}
+                    </p>
+                  )}
+                  {alarmType === "advanced" && (
+                    <p className="text-[10px] text-zinc-400 bg-zinc-50 p-2.5 rounded-xl border border-zinc-100 leading-relaxed">
+                      <strong>{t("Zestaw zaawansowany:", "Advanced set:", "Pokročilá sada:")}</strong> {t("Centrala GSM z podtrzymaniem bateryjnym, komplet czujników ruchu, czujniki magnetyczne otwarcia drzwi/okien, silna bezprzewodowa syrena zewnętrzna, bezprzewodowa klawiatura kodowa oraz sterowanie smartfonem. Maksymalne bezpieczeństwo dla Twojego domu i firmy.", "GSM control panel with battery backup, motion sensors kit, magnetic door/window opening sensors, powerful wireless outdoor siren, wireless keypad, and smartphone control. Maximum security for your home and business.", "GSM ústředna se záložní baterií, sada pohybových čidel, magnetické senzory otevření dveří/oken, výkonná bezdrátová venkovní siréna, bezdrátová klávesnice a ovládání z chytrého telefonu. Maximální zabezpečení pro váš domov i firmu.")}
+                    </p>
+                  )}
                 </div>
 
                 {/* 6. WiFi Upgrade Controller */}
@@ -1016,10 +1122,10 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5 flex-wrap">
-                        Modernizacja istniejącego WiFi w budynku <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide border border-emerald-150">Polecane dla kamer</span>
+                        {t("Modernizacja istniejącego WiFi w budynku", "Upgrade of existing WiFi in the building", "Modernizace stávající WiFi v budově")} <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wide border border-emerald-150">{t("Polecane dla kamer", "Recommended for cameras", "Doporučeno pro kamery")}</span>
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        Zmodernizujemy Twoją obecną sieć WiFi do nowoczesnego, stabilnego standardu DualBand WiFi 6 lub WiFi 7 wraz z pełną konfiguracją pod inteligentne urządzenia i testami pokrycia sygnałem.
+                        {t("Zmodernizujemy Twoją obecną sieć WiFi do nowoczesnego, stabilnego standardu DualBand WiFi 6 lub WiFi 7 wraz z pełną konfiguracją pod inteligentne urządzenia i testami pokrycia sygnałem.", "We will upgrade your current WiFi network to a modern, stable DualBand WiFi 6 or WiFi 7 standard, including full configuration for smart devices and signal coverage tests.", "Zmodernizujeme vaši stávající WiFi síť na moderní, stabilní standard DualBand WiFi 6 nebo WiFi 7 včetně kompletní konfigurace pro chytrá zařízení a testů pokrytí signálem.")}
                       </p>
                     </div>
                   </div>
@@ -1034,7 +1140,7 @@ export default function App() {
                           : "bg-zinc-50 border-zinc-200 text-zinc-650 hover:bg-zinc-100"
                       }`}
                     >
-                      <span className="font-extrabold">Bez aktualizacji</span>
+                      <span className="font-extrabold">{t("Bez aktualizacji", "No upgrade", "Bez aktualizace")}</span>
                       <span className="text-[9px] font-mono tracking-wider opacity-80">(0 zł)</span>
                     </button>
                     <button
@@ -1047,7 +1153,7 @@ export default function App() {
                       }`}
                     >
                       <span className="font-extrabold">DualBand WiFi 6 🚀</span>
-                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{WIFI_6_PRICE} zł z konfig.</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{WIFI_6_PRICE} {t("zł z konfig.", "PLN w/ config", "Kč s konfig.")}</span>
                     </button>
                     <button
                       type="button"
@@ -1059,39 +1165,8 @@ export default function App() {
                       }`}
                     >
                       <span className="font-extrabold">DualBand WiFi 7 ⚡</span>
-                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{WIFI_7_PRICE} zł z konfig.</span>
+                      <span className="text-[9px] font-mono tracking-wider opacity-80">+{WIFI_7_PRICE} {t("zł z konfig.", "PLN w/ config", "Kč s konfig.")}</span>
                     </button>
-                  </div>
-                </div>
-
-                {/* 7. Professional installation and configuration */}
-                <div className="bg-white p-5 rounded-2xl border border-zinc-150 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-3xs hover:border-zinc-300 transition-colors">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-zinc-50 text-zinc-900 border border-zinc-150 rounded-xl shrink-0">
-                      <Wrench className="w-5 h-5 text-zinc-950 stroke-[1.75]" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        Profesjonalny montaż i konfiguracja przez Dream Studio (Wymagany)
-                      </h3>
-                      <p className="text-[11px] text-zinc-400 mt-1">
-                        Ze względów bezpieczeństwa i gwarancji prawidłowego działania systemu, jedyną dostępną formą instalacji jest montaż przez naszych ekspertów. Konfiguracja centrali, testy poprawności, kalibracja kamer oraz zamków w cenie.
-                      </p>
-                      <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">
-                        {totalItemCount <= 3 ? "599 zł * (do 3 urządzeń)" : `599 zł + ${(totalItemCount - 3) * 100} zł = ${599 + (totalItemCount - 3) * 100} zł * (${totalItemCount} urządzeń)`}
-                      </span>
-                      <p className="text-[9px] text-zinc-400 mt-0.5 font-semibold">
-                        * Bazowo 599 zł do 3 urządzeń, każde kolejne +100 zł (wliczając bazę centralną)
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Option display (Mandatory) */}
-                  <div className="flex items-center gap-2 self-end sm:self-center">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-950 text-white rounded-xl text-[10px] font-black uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      Wydajny montaż
-                    </div>
                   </div>
                 </div>
 
@@ -1103,72 +1178,74 @@ export default function App() {
                 {/* Visual live order value breakdown */}
                 <div className="bg-white p-6 rounded-3xl border border-zinc-150 shadow-sm space-y-4">
                   <h3 className="text-xs font-black uppercase tracking-wider text-zinc-950 pb-2 border-b border-zinc-100 flex items-center gap-1.5">
-                    <ShoppingBag className="w-4 h-4 text-zinc-950" /> Podsumowanie zestawu
+                    <ShoppingBag className="w-4 h-4 text-zinc-950" /> {t("Podsumowanie zestawu", "Kit Summary", "Shrnutí sady")}
                   </h3>
 
                   <div className="space-y-3.5 text-xs">
                     
                     <div className="flex justify-between font-mono">
-                      <span className="text-zinc-500">1x Baza Centralna Twój SMART Home Hub</span>
-                      <span className="font-bold text-zinc-900">{HUB_PRICE} zł</span>
+                      <span className="text-zinc-500">{t("Montaż Twój SMART Home", "Twój SMART Home Installation", "Instalace Twój SMART Home")} ({selectedDevicesCount} {t("urządz.", "devices", "zaříz.")})</span>
+                      <span className="font-bold text-zinc-900">{montazPrice} zł</span>
                     </div>
 
                     {camsSingle > 0 && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{camsSingle}x Kamera SMART Home (Singiel)</span>
+                        <span className="text-zinc-500">{camsSingle}x {t("Kamera SMART Home (Singiel)", "SMART Home Cam (Single)", "SMART Home Cam (Single)")}</span>
                         <span className="font-bold text-zinc-900">+{camsSingle * CAM_SINGLE_UNIT_PRICE} zł</span>
                       </div>
                     )}
 
                     {camsDual > 0 && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{camsDual}x Kamera SMART Home (Dual)</span>
+                        <span className="text-zinc-500">{camsDual}x {t("Kamera SMART Home (Dual)", "SMART Home Cam (Dual)", "SMART Home Cam (Dual)")}</span>
                         <span className="font-bold text-zinc-900">+{camsDual * CAM_DUAL_UNIT_PRICE} zł</span>
                       </div>
                     )}
 
                     {locks > 0 && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{locks}x Inteligentny Zamek</span>
+                        <span className="text-zinc-500">{locks}x {t("Inteligentny Zamek", "Smart Lock", "Inteligentní zámek")}</span>
                         <span className="font-bold text-zinc-900">+{locksPrice} zł</span>
                       </div>
                     )}
 
                     {floods > 0 && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{floods}x Czujnik Zalania</span>
+                        <span className="text-zinc-500">{floods}x {t("Czujnik Zalania", "Water Leak Sensor", "Senzor zatopení")}</span>
                         <span className="font-bold text-zinc-900">+{floodsPrice} zł</span>
                       </div>
                     )}
 
-                    {lights > 0 && (
+                    {alarmType !== "none" && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{lights}x Żarówka Smart RGB</span>
-                        <span className="font-bold text-zinc-900">+{lightsPrice} zł</span>
+                        <span className="text-zinc-500">1x {t("Bezprzewodowy Alarm", "Wireless Alarm", "Bezdrátový alarm")} ({alarmType === "basic" ? t("Podstawowy", "Basic", "Základní") : t("Zaawansowany", "Advanced", "Pokročilý")})</span>
+                        <span className="font-bold text-zinc-900">+{alarmPrice} zł</span>
                       </div>
                     )}
 
                     {wifiUpgrade !== "none" && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">1x Modernizacja WiFi ({wifiUpgrade === "wifi6" ? "DualBand WiFi 6" : "DualBand WiFi 7"})</span>
+                        <span className="text-zinc-500">1x {t("Modernizacja WiFi", "WiFi Upgrade", "Modernizace WiFi")} ({wifiUpgrade === "wifi6" ? "DualBand WiFi 6" : "DualBand WiFi 7"})</span>
                         <span className="font-bold text-zinc-900">+{wifiUpgradePrice} zł</span>
                       </div>
                     )}
 
-                    <div className="flex justify-between font-mono bg-zinc-50 p-2 rounded-xl border border-zinc-100 text-[11px] items-center text-zinc-650">
-                      <span className="flex items-center gap-1 font-semibold">🔧 Montaż i konfiguracja (Wymagany — {totalItemCount} urządz.):</span>
-                      <span className="font-bold text-zinc-900">+{installationCost} zł</span>
-                    </div>
+                    {includeInstallation && installationCost > 0 && (
+                      <div className="flex justify-between font-mono bg-zinc-50 p-2 rounded-xl border border-zinc-100 text-[11px] items-center text-zinc-650">
+                        <span className="flex items-center gap-1 font-semibold">🔧 {t("Montaż i konfiguracja (Wymagany — {count} urządz.):", "Installation & config (Required — {count} devices):", "Montáž a konfigurace (Vyžadováno — {count} zaříz.):").replace("{count}", String(totalItemCount))}</span>
+                        <span className="font-bold text-zinc-900">+{installationCost} zł</span>
+                      </div>
+                    )}
 
                     <div className="pt-3 border-t border-zinc-100 text-[11px] flex justify-between items-center text-zinc-500">
-                      <span>Metoda transportu:</span>
-                      <span className="font-bold text-zinc-900">Dowóz przez ekipę montażową</span>
+                      <span>{t("Metoda transportu:", "Shipping method:", "Způsob dopravy:")}</span>
+                      <span className="font-bold text-zinc-900">{t("Dowóz przez ekipę montażową", "Delivery by installation crew", "Doručení instalační četou")}</span>
                     </div>
 
                     <div className="flex justify-between font-mono text-zinc-500 pb-1">
-                      <span>Koszt transportu i dostawy:</span>
+                      <span>{t("Koszt transportu i dostawy:", "Transport & delivery cost:", "Cena za dopravu a doručení:")}</span>
                       <span className="font-bold text-zinc-900">
-                        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 font-sans text-[10px] font-bold uppercase tracking-wide">Darmowa dostawa (z montażem)</span>
+                        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 font-sans text-[10px] font-bold uppercase tracking-wide">{t("Darmowa dostawa (z montażem)", "Free delivery (with installation)", "Doprava zdarma (s montáží)")}</span>
                       </span>
                     </div>
 
@@ -1176,7 +1253,7 @@ export default function App() {
                     {appliedDiscount > 0 && (
                       <div className="flex justify-between text-emerald-600 bg-emerald-50 p-2.5 rounded-xl border border-emerald-100 text-[11px]">
                         <span className="font-semibold flex items-center gap-1">
-                          <Check className="w-3 h-3" /> Rabat 10% aktywowany
+                          <Check className="w-3 h-3" /> {t("Rabat 10% aktywowany", "10% Discount activated", "10% sleva aktivována")}
                         </span>
                         <strong className="font-mono">-{discountAmount} zł</strong>
                       </div>
@@ -1186,7 +1263,7 @@ export default function App() {
 
                   {/* Promo Code Input block */}
                   <div className="pt-3 border-t border-zinc-100 space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block">Dopasuj kod kuponu rabatowego</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block">{t("Dopasuj kod kuponu rabatowego", "Apply discount coupon code", "Použít slevový kupón")}</span>
                     <div className="flex gap-2">
                       <input 
                         type="text" 
@@ -1198,9 +1275,9 @@ export default function App() {
                       <button 
                         type="button"
                         onClick={() => handleApplyPromo(promoCode)}
-                        className="bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-bold uppercase tracking-wider px-4 rounded-xl transition-colors cursor-pointer"
+                        className="bg-zinc-900 hover:bg-zinc-850 text-white text-[11px] font-bold uppercase tracking-wider px-4 rounded-xl transition-colors cursor-pointer"
                       >
-                        Zastosuj
+                        {t("Zastosuj", "Apply", "Použít")}
                       </button>
                     </div>
                     {promoError && <p className="text-[10px] text-red-500 font-bold font-mono">{promoError}</p>}
@@ -1209,10 +1286,10 @@ export default function App() {
 
                   {/* Pricing Total block */}
                   <div className="pt-4 border-t border-dashed border-zinc-200 flex items-baseline justify-between font-black text-zinc-950">
-                    <span className="text-sm">Razem brutto:</span>
+                    <span className="text-sm">{t("Razem brutto:", "Total gross:", "Celkem s DPH:")}</span>
                     <div className="text-right">
                       <span className="text-2xl font-mono">{finalTotalPrice} zł</span>
-                      <p className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase">Przesyłka wliczona</p>
+                      <p className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase">{t("Przesyłka wliczona", "Delivery included", "Doprava v ceně")}</p>
                     </div>
                   </div>
 
@@ -1224,7 +1301,7 @@ export default function App() {
                       onClick={() => setCheckoutStep("checkout")}
                       className="w-full bg-zinc-950 hover:bg-zinc-850 text-white text-xs font-bold py-3.5 rounded-2xl uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      Dalej: Dane do montażu <ArrowRight className="w-4 h-4" />
+                      {t("Dalej: Dane do montażu", "Next: Installation details", "Dále: Instalační údaje")} <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
 
@@ -1235,13 +1312,13 @@ export default function App() {
                   <div id="order-form-container" className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-md space-y-4">
                     <div className="flex justify-between items-center pb-2 border-b border-zinc-100">
                       <h3 className="text-xs font-black uppercase tracking-wider text-zinc-950">
-                        Dane do bezpłatnej wyceny i montażu
+                        {t("Dane do bezpłatnej wyceny i montażu", "Data for free estimate & installation", "Údaje pro bezplatný odhad a montáž")}
                       </h3>
                       <button 
                         onClick={() => setCheckoutStep("config")} 
                         className="text-[10px] font-bold text-zinc-400 hover:text-zinc-800 uppercase"
                       >
-                        Wróć do wyboru
+                        {t("Wróć do wyboru", "Back to choice", "Zpět k výběru")}
                       </button>
                     </div>
 
@@ -1249,12 +1326,12 @@ export default function App() {
                       
                       {/* Name fields */}
                       <div>
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Imię i nazwisko</label>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">{t("Imię i nazwisko", "Full Name", "Jméno a příjmení")}</label>
                         <input 
                           type="text" 
                           value={fullname}
                           onChange={(e) => setFullname(e.target.value)}
-                          placeholder="Np. Jan Kowalski"
+                          placeholder={t("Np. Jan Kowalski", "e.g. John Doe", "Např. Jan Novák")}
                           className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl px-3 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-650"
                         />
                         {formErrors.fullname && <span className="text-[10px] text-red-500 font-bold font-mono mt-0.5 block">{formErrors.fullname}</span>}
@@ -1263,18 +1340,18 @@ export default function App() {
                       {/* Phone / Email grid */}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Adres E-mail</label>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-455 block mb-1">{t("Adres E-mail", "Email Address", "E-mailová adresa")}</label>
                           <input 
                             type="email" 
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="jan@domena.pl"
+                            placeholder={t("jan@domena.pl", "john@domain.com", "jan@domena.cz")}
                             className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl px-3 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-650"
                           />
                           {formErrors.email && <span className="text-[10px] text-red-500 font-bold font-mono mt-0.5 block">{formErrors.email}</span>}
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Numer telefonu</label>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-455 block mb-1">{t("Numer telefonu", "Phone Number", "Telefonní číslo")}</label>
                           <input 
                             type="tel" 
                             value={phone}
@@ -1288,12 +1365,12 @@ export default function App() {
 
                       {/* Shipping address fields */}
                       <div>
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Ulica i numer lokalu (adres montażu)</label>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-455 block mb-1">{t("Ulica i numer lokalu (adres montażu)", "Street & building number (installation address)", "Ulice a číslo domu (adresa montáže)")}</label>
                         <input 
                           type="text" 
                           value={street}
                           onChange={(e) => setStreet(e.target.value)}
-                          placeholder="Mickiewicza 12m. 4"
+                          placeholder={t("Mickiewicza 12m. 4", "Main Street 12", "Mickiewiczova 12")}
                           className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl px-3 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-650"
                         />
                         {formErrors.street && <span className="text-[10px] text-red-500 font-bold font-mono mt-0.5 block">{formErrors.street}</span>}
@@ -1301,7 +1378,7 @@ export default function App() {
 
                       <div className="grid grid-cols-3 gap-3">
                         <div className="col-span-1">
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Kod pocztowy</label>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-455 block mb-1">{t("Kod pocztowy", "Postal Code", "Poštovní směrovací číslo")}</label>
                           <input 
                             type="text" 
                             value={postcode}
@@ -1312,12 +1389,12 @@ export default function App() {
                           {formErrors.postcode && <span className="text-[10px] text-red-500 font-bold font-mono mt-0.5 block">{formErrors.postcode}</span>}
                         </div>
                         <div className="col-span-2">
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-450 block mb-1">Miasto</label>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-455 block mb-1">{t("Miasto", "City", "Město")}</label>
                           <input 
                             type="text" 
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
-                            placeholder="Warszawa"
+                            placeholder={t("Warszawa", "Warsaw", "Praha")}
                             className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl px-3 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-650"
                           />
                           {formErrors.city && <span className="text-[10px] text-red-500 font-bold font-mono mt-0.5 block">{formErrors.city}</span>}
@@ -1330,21 +1407,14 @@ export default function App() {
                         disabled={isSubmittingOrder}
                         className="w-full bg-zinc-950 hover:bg-zinc-850 disabled:bg-zinc-300 text-white text-xs font-bold py-4 rounded-2xl uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
                       >
-                        {isSubmittingOrder ? "Wysyłanie konfiguracji..." : "Wyślij zapytanie i zamów darmową wycenę"} <Check className="w-4 h-4" />
+                        {isSubmittingOrder ? t("Wysyłanie konfiguracji...", "Sending configuration...", "Odesílání konfigurace...") : t("Wyślij zapytanie i zamów darmową wycenę", "Send inquiry & order free quote", "Odeslat poptávku a objednat bezplatnou kalkulaci")} <Check className="w-4 h-4" />
                       </button>
 
                     </form>
                   </div>
                 )}
 
-                {/* Bullet safety signals */}
-                <div className="bg-zinc-100/50 p-4 rounded-2xl border border-zinc-200/50 text-zinc-500 text-[11px] leading-relaxed flex gap-3">
-                  <Shield className="w-5 h-5 text-zinc-405 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-zinc-800 uppercase text-[9px] tracking-wider block mb-1">Gwarancja Satysfakcji</strong>
-                    30 dni na bezpłatny zwrot. Nic nie ryzykujesz — jeśli system nie spełni Twoich oczekiwań, odeślij go na nasz koszt, a otrzymasz 100% zwrotu pieniędzy.
-                  </div>
-                </div>
+
 
               </div>
               
@@ -1765,7 +1835,7 @@ export default function App() {
 
             {/* Description Text */}
             <p className="text-[11px] text-zinc-500 leading-relaxed">
-              Masz pytania dotyczące inteligentnego domu, kamer IP lub alarmów? Zadzwoń bezpośrednio! Chętnie doradzę i przygotuję <strong>bezpłatną wycenę</strong>.
+              Masz pytania dotyczące inteligentnego domu, kamer WiFi lub alarmów lub modernizacji sieci internetowej? Zadzwoń bezpośrednio! Chętnie doradzę i przygotuję <strong>bezpłatną wycenę</strong>.
             </p>
 
             {/* Main Phone Number link */}
