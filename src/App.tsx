@@ -220,6 +220,16 @@ export default function App() {
   const [promoError, setPromoError] = useState("");
   const [promoSuccess, setPromoSuccess] = useState("");
 
+  // Anti-spam state variables
+  const [botHoneypot, setBotHoneypot] = useState("");
+  const [orderNumA, setOrderNumA] = useState(() => Math.floor(Math.random() * 8) + 2);
+  const [orderNumB, setOrderNumB] = useState(() => Math.floor(Math.random() * 8) + 2);
+  const [orderCaptchaAnswer, setOrderCaptchaAnswer] = useState("");
+  const [contactNumA, setContactNumA] = useState(() => Math.floor(Math.random() * 8) + 2);
+  const [contactNumB, setContactNumB] = useState(() => Math.floor(Math.random() * 8) + 2);
+  const [contactCaptchaAnswer, setContactCaptchaAnswer] = useState("");
+  const [captchaErrorMsg, setCaptchaErrorMsg] = useState("");
+
   // Booking Flow Steps
   // 'config' | 'checkout' | 'success'
   const [checkoutStep, setCheckoutStep] = useState<"config" | "checkout" | "success">("config");
@@ -406,6 +416,22 @@ export default function App() {
     if (!city.trim()) errors.city = t("Wpisz miasto", "Enter city", "Zadejte město");
     if (!consentAccepted) errors.consent = t("Musisz zaakceptować regulamin i politykę prywatności", "You must accept the terms and privacy policy", "Musíte souhlasit s obchodními podmínkami a zásadami ochrany osobních údajů");
 
+    // Honeypot check for bots
+    if (botHoneypot.trim() !== "") {
+      // Quietly succeed to satisfy the bot without submitting anything
+      setCheckoutStep("success");
+      return;
+    }
+
+    const expectedAnswer = orderNumA + orderNumB;
+    if (parseInt(orderCaptchaAnswer.trim()) !== expectedAnswer) {
+      errors.captcha = t(
+        "Niepoprawny wynik weryfikacji antyspamowej. Spróbuj ponownie.",
+        "Incorrect anti-spam verification answer. Please try again.",
+        "Nesprávný výsledek antispamového ověření. Zkuste to prosím znovu."
+      );
+    }
+
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       // scroll to bottom to see form errors nicely
@@ -531,6 +557,24 @@ export default function App() {
     e.preventDefault();
     if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) {
       alert("Proszę wypełnić wszystkie wymagane pola (Imię, E-mail, Wiadomość).");
+      return;
+    }
+
+    // Honeypot check for bots
+    if (botHoneypot.trim() !== "") {
+      // Quietly succeed to satisfy the bot
+      setContactSuccessMsg("Dziękujemy! Twoja wiadomość została pomyślnie wysłana bezpośrednio na adres dreamstudiopl@gmail.com. Skontaktujemy się z Tobą wkrótce!");
+      setContactName("");
+      setContactEmail("");
+      setContactPhone("");
+      setContactMessage("");
+      navigateTo("/kontaktwyslany");
+      return;
+    }
+
+    const expectedAnswer = contactNumA + contactNumB;
+    if (parseInt(contactCaptchaAnswer.trim()) !== expectedAnswer) {
+      alert("Niepoprawny wynik weryfikacji antyspamowej. Oblicz działanie matematyczne na dole formularza i spróbuj ponownie.");
       return;
     }
 
@@ -1657,6 +1701,46 @@ export default function App() {
                         {formErrors.consent && <span className="text-[10px] text-red-500 font-bold font-mono mt-1 block">{formErrors.consent}</span>}
                       </div>
 
+                      {/* Anti-Spam Security Fields */}
+                      <div className="absolute opacity-0 w-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                        <label>Leave this field empty</label>
+                        <input
+                          type="text"
+                          value={botHoneypot}
+                          onChange={(e) => setBotHoneypot(e.target.value)}
+                          tabIndex={-1}
+                          autoComplete="off"
+                        />
+                      </div>
+
+                      <div className="bg-zinc-50 border border-zinc-200/60 rounded-2xl p-4 space-y-2 mt-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-100">
+                              {t("Zabezpieczenie antyspamowe", "Anti-spam protection", "Ochrana proti spamu")}
+                            </span>
+                            <h4 className="text-[10px] font-black text-zinc-900 uppercase mt-1">
+                              {t("Potwierdź, że jesteś człowiekiem", "Confirm you are human", "Potvrďte, že jste člověk")}
+                            </h4>
+                          </div>
+                          <span className="text-zinc-900 font-mono text-[12px] font-extrabold bg-white border border-zinc-200 px-2.5 py-1 rounded-lg shadow-3xs">
+                            {orderNumA} + {orderNumB} = ?
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={orderCaptchaAnswer}
+                          onChange={(e) => setOrderCaptchaAnswer(e.target.value)}
+                          placeholder={t("Wpisz wynik obliczenia...", "Enter the calculation result...", "Zadejte výsledek výpočtu...")}
+                          className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs font-bold text-center focus:outline-none focus:border-zinc-650"
+                        />
+                        {formErrors.captcha && (
+                          <span className="text-[10px] text-red-500 font-bold font-mono block">
+                            {formErrors.captcha}
+                          </span>
+                        )}
+                      </div>
+
                       {/* Ultimate Checkout Submit Button */}
                       <button
                         type="submit"
@@ -1916,6 +2000,42 @@ export default function App() {
                     {contactSuccessMsg}
                   </div>
                 )}
+
+                {/* Anti-Spam Security Fields */}
+                <div className="absolute opacity-0 w-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                  <label>Leave this field empty</label>
+                  <input
+                    type="text"
+                    value={botHoneypot}
+                    onChange={(e) => setBotHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
+                <div className="bg-zinc-50 border border-zinc-200/60 rounded-xl p-3.5 space-y-2 mt-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-100">
+                        Ochrona antyspamowa
+                      </span>
+                      <h4 className="text-[10px] font-black text-zinc-900 uppercase mt-1">
+                        Rozwiąż proste zadanie matematyczne
+                      </h4>
+                    </div>
+                    <span className="text-zinc-900 font-mono text-[12px] font-extrabold bg-white border border-zinc-200 px-2.5 py-1 rounded-lg shadow-3xs">
+                      {contactNumA} + {contactNumB} = ?
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={contactCaptchaAnswer}
+                    onChange={(e) => setContactCaptchaAnswer(e.target.value)}
+                    placeholder="Wpisz wynik obliczenia..."
+                    className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs font-bold text-center focus:outline-none focus:border-zinc-950"
+                    required
+                  />
+                </div>
 
                 <button
                   type="submit"
