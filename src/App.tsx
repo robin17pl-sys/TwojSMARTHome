@@ -137,6 +137,7 @@ export default function App() {
   const [city, setCity] = useState("");
   const deliveryMethod = "expert";
   const [paymentMethod, setPaymentMethod] = useState<"blik" | "card" | "cash">("blik");
+  const [consentAccepted, setConsentAccepted] = useState(false);
   
   // Validation triggers
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -158,6 +159,9 @@ export default function App() {
 
   // Auto coupon application notice toggle
   const [showPromoBadge, setShowPromoBadge] = useState(true);
+
+  // Legal policy modal state
+  const [activeLegalModal, setActiveLegalModal] = useState<"regulamin" | "polityka" | null>(null);
 
   // Professional installation is standard and mandatory
   const includeInstallation = false;
@@ -227,6 +231,7 @@ export default function App() {
     if (!street.trim()) errors.street = t("Ulica i numer budynku są wymagane", "Street and building number are required", "Ulice a číslo domu jsou povinné");
     if (!postcode.trim() || !/^\d{2}-\d{3}$/.test(postcode)) errors.postcode = t("Wpisz kod pocztowy w formacie 00-000", "Enter postal code in format 00-000", "Zadejte PSČ ve formátu 00-000");
     if (!city.trim()) errors.city = t("Wpisz miasto", "Enter city", "Zadejte město");
+    if (!consentAccepted) errors.consent = t("Musisz zaakceptować regulamin i politykę prywatności", "You must accept the terms and privacy policy", "Musíte souhlasit s obchodními podmínkami a zásadami ochrany osobních údajů");
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -250,7 +255,7 @@ export default function App() {
       ...(wifiUpgrade === "wifi6" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 6 + Konfiguracja", qty: 1, price: WIFI_6_PRICE }] : []),
       ...(wifiUpgrade === "wifi7" ? [{ name: "Aktualizacja WiFi do DualBand WiFi 7 + Konfiguracja", qty: 1, price: WIFI_7_PRICE }] : []),
       ...(locks > 0 ? [{ name: "Zamek Smart Lock Twój SMART Home Lock", qty: locks, price: locksPrice }] : []),
-      ...(floods > 0 ? [{ name: "Czujnik Zalania Twój SMART Home Flood", qty: floods, price: floodsPrice }] : []),
+      ...(floods > 0 ? [{ name: "Czujnik Zalania / Dymu Twój SMART Home", qty: floods, price: floodsPrice }] : []),
       ...(alarmType === "basic" ? [{ name: "System Alarmowy Twój SMART Home Alarm (Wersja Podstawowa)", qty: 1, price: ALARM_BASIC_PRICE }] : []),
       ...(alarmType === "advanced" ? [{ name: "System Alarmowy Twój SMART Home Alarm (Wersja Zaawansowana)", qty: 1, price: ALARM_ADVANCED_PRICE }] : []),
       ...(includeInstallation ? [{ name: `Profesjonalny montaż i konfiguracja (${totalItemCount} urządzeń)`, qty: 1, price: installationCost }] : [])
@@ -816,7 +821,7 @@ export default function App() {
                      item.name.includes("WiFi 6") ? t("Aktualizacja WiFi do DualBand WiFi 6", "WiFi Upgrade to DualBand WiFi 6", "Upgrade WiFi na DualBand WiFi 6") :
                      item.name.includes("WiFi 7") ? t("Aktualizacja WiFi do DualBand WiFi 7", "WiFi Upgrade to DualBand WiFi 7", "Upgrade WiFi na DualBand WiFi 7") :
                      item.name.includes("Zamek") ? t("Zamek Smart Lock Twój SMART Home Lock", "Smart Lock Your SMART Home Lock", "Zámek Smart Lock Váš SMART Home Lock") :
-                     item.name.includes("Zalania") ? t("Czujnik Zalania Twój SMART Home Flood", "Water Leak Sensor Your SMART Home Flood", "Senzor zatopení Váš SMART Home Flood") :
+                     (item.name.includes("Zalania") || item.name.includes("Dymu")) ? t("Czujnik Zalania / Dymu Twój SMART Home", "Water Leak / Smoke Sensor Your SMART Home", "Senzor zatopení / kouře Váš SMART Home") :
                      item.name.includes("Podstawowa") ? t("System Alarmowy (Wersja Podstawowa)", "Alarm System (Basic Version)", "Poplašný systém (Základní verze)") :
                      item.name.includes("Zaawansowana") ? t("System Alarmowy (Wersja Zaawansowana)", "Alarm System (Advanced Version)", "Poplašný systém (Pokročilá verze)") :
                      item.name.includes("konfiguracja") ? t("Profesjonalny montaż i konfiguracja", "Professional installation and configuration", "Profesionální montáž a konfigurace") :
@@ -1020,10 +1025,10 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="text-xs font-black uppercase text-zinc-900 tracking-wide flex items-center gap-1.5">
-                        {t("Czujnik Zalania Twój SMART Home Flood", "Water Leak Sensor Your SMART Home Flood", "Senzor zatopení Váš SMART Home Flood")}
+                        {t("Czujnik Zalania / Dymu Twój SMART Home", "Water Leak / Smoke Sensor Twój SMART Home", "Senzor zatopení / kouře Váš SMART Home")}
                       </h3>
                       <p className="text-[11px] text-zinc-400 mt-1">
-                        {t("Kompaktowy detektor cieczy do kuchni, łazienki lub kotłowni. Błyskawicznie alarmuje w przypadku pierwszej nieszczelności rury.", "Compact liquid detector for kitchen, bathroom, or boiler room. Instantly alerts at the first sign of a pipe leak.", "Kompaktní detektor kapalin pro kuchyň, koupelnu nebo kotelnu. Okamžitě upozorní při prvním úniku vody z potrubí.")}
+                        {t("Kompaktowy, bezprzewodowy czujnik, który chroni przed zalaniem lub pożarem. Błyskawicznie alarmuje w przypadku wykrycia nieszczelności rury lub pojawienia się dymu.", "Compact, wireless sensor protecting against water damage or fire. Instantly alerts upon detecting a pipe leak or smoke.", "Kompaktní, bezdrátový senzor chránící před vytopením nebo požárem. Okamžitě upozorní při zjištění úniku vody z potrubí nebo kouře.")}
                       </p>
                       <span className="inline-block mt-2 font-mono text-[11px] font-bold text-zinc-550">+{FLOOD_UNIT_PRICE} zł {t("za sztukę", "per piece", "za kus")}</span>
                     </div>
@@ -1211,7 +1216,7 @@ export default function App() {
 
                     {floods > 0 && (
                       <div className="flex justify-between font-mono">
-                        <span className="text-zinc-500">{floods}x {t("Czujnik Zalania", "Water Leak Sensor", "Senzor zatopení")}</span>
+                        <span className="text-zinc-500">{floods}x {t("Czujnik Zalania / Dymu", "Water Leak / Smoke Sensor", "Senzor zatopení / kouře")}</span>
                         <span className="font-bold text-zinc-900">+{floodsPrice} zł</span>
                       </div>
                     )}
@@ -1399,6 +1404,46 @@ export default function App() {
                           />
                           {formErrors.city && <span className="text-[10px] text-red-500 font-bold font-mono mt-0.5 block">{formErrors.city}</span>}
                         </div>
+                      </div>
+
+                      {/* GDPR Consent Checkbox */}
+                      <div className="pt-2">
+                        <label className="flex items-start gap-2.5 cursor-pointer text-[11px] text-zinc-500 font-medium select-none leading-relaxed">
+                          <input 
+                            type="checkbox" 
+                            checked={consentAccepted}
+                            onChange={(e) => setConsentAccepted(e.target.checked)}
+                            className="mt-0.5 rounded border-zinc-300 text-zinc-950 focus:ring-zinc-950 h-3.5 w-3.5"
+                          />
+                          <span>
+                            {t(
+                              "Akceptuję ", 
+                              "I accept the ", 
+                              "Souhlasím s "
+                            )}
+                            <button 
+                              type="button" 
+                              onClick={() => setActiveLegalModal("regulamin")} 
+                              className="text-zinc-950 font-bold hover:underline bg-transparent border-none p-0 cursor-pointer text-[11px] inline-block font-bold"
+                            >
+                              {t("regulamin świadczenia usług", "terms of service", "obchodními podmínkami")}
+                            </button>
+                            {t(" oraz ", " and ", " a ")}
+                            <button 
+                              type="button" 
+                              onClick={() => setActiveLegalModal("polityka")} 
+                              className="text-zinc-950 font-bold hover:underline bg-transparent border-none p-0 cursor-pointer text-[11px] inline-block font-bold"
+                            >
+                              {t("politykę prywatności RODO", "privacy policy", "zásadami ochrany osobních údajů (GDPR)")}
+                            </button>
+                            {t(
+                              " i wyrażam zgodę na darmowy audyt u klienta.", 
+                              " and consent to the free on-site audit.", 
+                              " a souhlasím s bezplatným auditem na místě."
+                            )}
+                          </span>
+                        </label>
+                        {formErrors.consent && <span className="text-[10px] text-red-500 font-bold font-mono mt-1 block">{formErrors.consent}</span>}
                       </div>
 
                       {/* Ultimate Checkout Submit Button */}
@@ -1782,9 +1827,19 @@ export default function App() {
           {/* Link info */}
           <div className="md:text-right space-y-3 md:self-stretch flex flex-col justify-between">
             <div className="flex md:justify-end gap-4 text-zinc-450 font-bold uppercase tracking-wider text-[10px]">
-              <a href="#kontakt" className="hover:text-zinc-900 transition-colors">Regulamin</a>
+              <button 
+                onClick={() => setActiveLegalModal("regulamin")} 
+                className="hover:text-zinc-900 transition-colors cursor-pointer bg-transparent border-none p-0 uppercase font-bold tracking-wider"
+              >
+                {t("Regulamin", "Terms & Conditions", "Podmínky")}
+              </button>
               <span>•</span>
-              <a href="#kontakt" className="hover:text-zinc-900 transition-colors">Polityka Prywatności</a>
+              <button 
+                onClick={() => setActiveLegalModal("polityka")} 
+                className="hover:text-zinc-900 transition-colors cursor-pointer bg-transparent border-none p-0 uppercase font-bold tracking-wider"
+              >
+                {t("Polityka Prywatności", "Privacy Policy", "Zásady ochrany osobních údajů")}
+              </button>
             </div>
             <p className="text-[10px] text-zinc-400">
               Dysonowanie i dystrybucja techniczna realizowana przez Dream Studio.
@@ -1902,6 +1957,217 @@ export default function App() {
           )}
         </button>
       </div>
+
+      {/* Legal Modal Component */}
+      {activeLegalModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/65 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-zinc-200 shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4.5 border-b border-zinc-150">
+              <div className="flex items-center gap-2">
+                <SmartHomeEmblem size={24} />
+                <h3 className="text-sm font-black uppercase text-zinc-950 tracking-wider">
+                  {activeLegalModal === "regulamin" 
+                    ? t("Regulamin świadczenia usług", "Terms of Service", "Obchodní podmínky")
+                    : t("Polityka Prywatności i RODO", "Privacy Policy & GDPR", "Zásady ochrany osobních údajů i GDPR")}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setActiveLegalModal(null)}
+                className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-full hover:bg-zinc-100 transition-all cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="p-6 overflow-y-auto text-xs text-zinc-600 leading-relaxed space-y-4 text-left">
+              {activeLegalModal === "regulamin" ? (
+                <>
+                  {lang === "PL" && (
+                    <div className="space-y-4">
+                      <p className="font-bold text-zinc-800">REGULAMIN WYCENY I USŁUG INSTALACYJNYCH "TWÓJ SMART HOME"</p>
+                      <p>Niniejszy regulamin określa zasady korzystania z konfiguratora, zamawiania bezpłatnej wyceny oraz realizacji usług montażowych przez firmę Dream Studio z siedzibą w Rychwałdzie, ul. Wesoła 25, 34-322 Rychwałd, NIP: 627-264-32-87.</p>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 1. Postanowienia ogólne</h4>
+                        <ul className="list-disc pl-4 space-y-1 mt-1">
+                          <li>Serwis i konfigurator dostępny pod adresem internetowym służy do orientacyjnego wyliczenia kosztów zakupu oraz montażu urządzeń inteligentnego domu.</li>
+                          <li>Właścicielem serwisu oraz podmiotem świadczącym usługi jest Dream Studio.</li>
+                          <li>Kontakt z Usługodawcą jest możliwy pod adresem e-mail: <strong className="text-zinc-800">dreamstudiopl@gmail.com</strong>.</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 2. Wycena i audyt na miejscu</h4>
+                        <ul className="list-disc pl-4 space-y-1 mt-1">
+                          <li>Wszelkie kalkulacje wygenerowane przez konfigurator mają charakter szacunkowy i informacyjny. Nie stanowią one oferty handlowej w rozumieniu art. 66 § 1 Kodeksu Cywilnego.</li>
+                          <li>Zgłoszenie wysłane przez użytkownika za pośrednictwem formularza stanowi zapytanie ofertowe i zaproszenie do bezpłatnego audytu technicznego u klienta.</li>
+                          <li>Audyt techniczny na miejscu oraz sporządzenie finalnego kosztorysu są całkowicie darmowe i niezobowiązujące.</li>
+                          <li>Ostateczna cena realizacji usługi oraz specyfikacja techniczna są ustalane indywidualnie i zatwierdzane w formie pisemnej umowy przed przystąpieniem do montażu.</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 3. Warunki realizacji usług montażowych</h4>
+                        <ul className="list-disc pl-4 space-y-1 mt-1">
+                          <li>Warunkiem przystąpienia do montażu urządzeń SMART Home jest zapewnienie przez Klienta odpowiednich warunków technicznych (m.in. działające łącze internetowe o odpowiedniej sile sygnału, zasilanie elektryczne w miejscach montażu kamer/zamków).</li>
+                          <li>Jeżeli Klient wybierze opcję modernizacji sieci WiFi, montażysta dokona stosownej konfiguracji routerów/punktów dostępowych DualBand WiFi 6 lub WiFi 7 w celu zapewnienia stabilnej łączności urządzeń IoT.</li>
+                          <li>Dream Studio gwarantuje, że instalowane urządzenia są fabrycznie nowe, wolne od wad fizycznych i prawnych oraz posiadają gwarancję producenta.</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 4. Odpowiedzialność i reklamacje</h4>
+                        <ul className="list-disc pl-4 space-y-1 mt-1">
+                          <li>Usługodawca dokłada wszelkich starań, aby instalacje przebiegały bezinwazyjnie (bez niepotrzebnych kabli i wiercenia).</li>
+                          <li>Ewentualne reklamacje dotyczące działania systemu, urządzeń lub jakości montażu należy zgłaszać bezpośrednio na adres e-mail: <strong className="text-zinc-800">dreamstudiopl@gmail.com</strong>.</li>
+                          <li>Reklamacje będą rozpatrywane w ustawowym terminie 14 dni od ich wpłynięcia.</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 5. Postanowienia końcowe</h4>
+                        <p className="mt-1">W sprawach nieuregulowanych niniejszym Regulaminem zastosowanie mają odpowiednie przepisy prawa polskiego, w szczególności Kodeksu Cywentnego oraz Ustawy o prawach konsumenta.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {lang === "ENG" && (
+                    <div className="space-y-4">
+                      <p className="font-bold text-zinc-800">TERMS OF SERVICE - ESTIMATES & SMART HOME INSTALLATIONS</p>
+                      <p>These terms define the rules for using the online configurator, requesting a free quote/audit, and the execution of installation services by Dream Studio based in Rychwałd, ul. Wesoła 25, 34-322 Rychwałd, Poland, NIP: 627-264-32-87.</p>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">Section 1. General Provisions</h4>
+                        <p>The configurator tool provides non-binding estimates for smart home device purchases and professional installation services. The service provider is Dream Studio, reachable via email at dreamstudiopl@gmail.com.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">Section 2. Non-binding Estimates & On-site Audit</h4>
+                        <p>All calculations generated are informational and do not constitute a commercial offer under the Polish Civil Code. Requests trigger a completely free, non-binding on-site technical audit and final customized quote generation.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">Section 3. Implementation</h4>
+                        <p>Client must provide basic technical conditions (e.g. electrical power and internet network coverage). If upgraded WiFi standard is purchased, our technicians will configure professional dual-band mesh equipment for seamless operations.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {lang === "CZ" && (
+                    <div className="space-y-4">
+                      <p className="font-bold text-zinc-800">VŠEOBECNÉ OBCHODNÍ PODMÍNKY PRO KALKULACI A INSTALACI</p>
+                      <p>Tyto podmínky upravují používání konfigurátoru, objednávání bezplatných kalkulací a realizaci montážních služeb společností Dream Studio se sídlem v Rychwałdě, ul. Wesoła 25, 34-322 Rychwałd, Polsko, NIP: 627-264-32-87.</p>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 1. Obecná ustanovení</h4>
+                        <p>Konfigurátor slouží k orientačnímu výpočtu nákladů na pořízení a montáž chytré domácnosti. Vlastníkem a poskytovatelem služeb je společnost Dream Studio, e-mail: dreamstudiopl@gmail.com.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">§ 2. Bezplatná kalkulace a audit na místě</h4>
+                        <p>Všechny výpočty mají pouze informativní charakter. Odeslaná poptávka slouží jako nezávazná žádost o bezplatný technický audit na místě instalace.</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {lang === "PL" && (
+                    <div className="space-y-4">
+                      <p className="font-bold text-zinc-800">POLITYKA PRYWATNOŚCI I KLAUZULA INFORMACYJNA RODO</p>
+                      <p>Dbamy o ochronę Twojej prywatności. Niniejszy dokument opisuje zasady przetwarzania danych osobowych zbieranych za pośrednictwem serwisu i konfiguratora "Twój SMART Home".</p>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">1. Administrator Danych Osobowych</h4>
+                        <p className="mt-1">Administratorem Twoich danych osobowych jest <strong>Dream Studio</strong>, ul. Wesoła 25, 34-322 Rychwałd, NIP: 627-264-32-87. Możesz się z nami skontaktować pisząc na adres e-mail: <strong>dreamstudiopl@gmail.com</strong>.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">2. Cele i podstawy prawne przetwarzania</h4>
+                        <p className="mt-1">Twoje dane osobowe (imię i nazwisko, adres e-mail, numer telefonu oraz adres montażu) są przetwarzane w celach:</p>
+                        <ul className="list-disc pl-4 space-y-1 mt-1">
+                          <li>Przedstawienia oferty, wykonania darmowego kosztorysu oraz kontaktu w sprawie bezpłatnego audytu (podstawa prawna: art. 6 ust. 1 lit. b RODO – działania przed zawarciem umowy).</li>
+                          <li>Realizacji usług montażowych i konfiguracji zakupionych urządzeń (podstawa prawna: art. 6 ust. 1 lit. b RODO – wykonanie umowy).</li>
+                          <li>Obsługi zapytań i kontaktu poprzez formularz kontaktowy (podstawa prawna: art. 6 ust. 1 lit. f RODO – prawnie uzasadniony interes administratora).</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">3. Okres przechowywania danych</h4>
+                        <p className="mt-1">Dane osobowe będą przetwarzane przez okres niezbędny do przygotowania wyceny, realizacji umowy lub do momentu wniesienia sprzeciwu/żądania ich usunięcia, nie dłużej jednak niż przez okres przedawnienia roszczeń lub okres wynikający z przepisów prawa podatkowego.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">4. Odbiorcy danych i bezpieczeństwo</h4>
+                        <p className="mt-1">Twoje dane nie są sprzedawane ani udostępniane podmiotom trzecim w celach marketingowych. Dostęp do nich mają wyłącznie upoważnieni pracownicy i instalatorzy Dream Studio realizujący audyt/montaż na miejscu.</p>
+                        <p className="mt-1">Stosujemy zaawansowane techniczne środki bezpieczeństwa w celu zabezpieczenia danych przed niepowołanym dostępem.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">5. Prawa użytkownika</h4>
+                        <p className="mt-1">W związku z przetwarzaniem danych osobowych przysługuje Ci prawo do: dostępu do swoich danych, ich sprostowania, usunięcia („prawo do bycia zapomnianym”), ograniczenia ich przetwarzania, przenoszenia danych, wniesienia sprzeciwu wobec przetwarzania oraz wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (PUODO).</p>
+                        <p className="mt-1">W celu realizacji swoich praw skontaktuj się z nami pod adresem: <strong>dreamstudiopl@gmail.com</strong>.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {lang === "ENG" && (
+                    <div className="space-y-4">
+                      <p className="font-bold text-zinc-800">PRIVACY POLICY & GDPR COMPLIANCE</p>
+                      <p>We care about your privacy. This document outlines how your personal data is collected and processed when using our SMART Home Configurator.</p>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">1. Data Controller</h4>
+                        <p>The controller of your personal data is Dream Studio, ul. Wesoła 25, 34-322 Rychwałd, Poland. Contact: dreamstudiopl@gmail.com.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">2. Purposes of Processing</h4>
+                        <p>Your data (name, email, phone, and installation address) is processed for preparing requested estimates, performing technical audits, and executing agreed contracts. This is compliant with Art. 6 (1) (b) of GDPR.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">3. Your Rights</h4>
+                        <p>You have the right to access, rectify, or request erasure of your personal data at any time by contacting us.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {lang === "CZ" && (
+                    <div className="space-y-4">
+                      <p className="font-bold text-zinc-800">ZÁSADY OCHRANY OSOBNÍCH ÚDAJŮ (GDPR)</p>
+                      <p>Zavazujeme se chránit vaše soukromí. Tento dokument popisuje zásady zpracování osobních údajů v rámci konfigurátoru "Twój SMART Home".</p>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">1. Správce osobních údajů</h4>
+                        <p>Správcem vašich osobních údajů je Dream Studio, ul. Wesoła 25, 34-322 Rychwałd, Polsko. Kontakt: dreamstudiopl@gmail.com.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-zinc-900 uppercase">2. Vaše práva</h4>
+                        <p>Máte právo na přístup, opravu nebo vymazání svých osobních údajů. Kdykoli nás kontaktujte na e-mailu dreamstudiopl@gmail.com.</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Footer buttons */}
+            <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-150 flex justify-end">
+              <button 
+                onClick={() => setActiveLegalModal(null)}
+                className="bg-zinc-950 hover:bg-zinc-850 text-white font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition-all cursor-pointer"
+              >
+                {t("Rozumiem i akceptuję", "I understand & accept", "Rozumím a přijímám")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
