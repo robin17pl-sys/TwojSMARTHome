@@ -1958,6 +1958,63 @@ export default function App() {
         </button>
       </div>
 
+      {/* Hidden SEO optimization block for Google Crawlers (B2B Commercial, Enterprises, Construction Sites & Alarms) */}
+      <section className="sr-only" aria-hidden="true" id="seo-corporate-metadata">
+        <h1>{t("Monitoring kamer dla firm, alarmy dla przedsiębiorstw i placów budowy", "Camera monitoring for businesses, corporate alarms and construction sites", "Kamerový monitoring pro firmy, podnikové alarmy a staveniště")}</h1>
+        <h2>{t("Profesjonalne instalacje security B2B - Śląsk, Małopolska, Żywiec, Bielsko-Biała, Katowice, Kraków", "Professional B2B security installations - Silesia, Lesser Poland", "Profesionální B2B bezpečnostní instalace - Slezsko, Malopolsko")}</h2>
+        
+        <div>
+          <h3>{t("Monitoring wizyjny CCTV i kamery IP dla firm i korporacji", "CCTV Video Monitoring and IP Cameras for Companies & Corporations", "Kamerové systémy CCTV a IP kamery pro firmy a korporace")}</h3>
+          <p>
+            {t(
+              "Oferujemy najwyższej klasy systemy telewizji przemysłowej (CCTV) oraz zaawansowany monitoring kamer dla firm, biur, korporacji, hal magazynowych, zakładów produkcyjnych oraz centrów logistycznych. Nasze rozwiązania obejmują inteligentne kamery IP o wysokiej rozdzielczości z funkcją detekcji ruchu AI, rozpoznawaniem twarzy oraz rejestracją tablic rejestracyjnych. Gwarantujemy stabilny i bezpieczny podgląd online na urządzeniach mobilnych z dowolnego miejsca na świecie. Obsługujemy duże firmy i przedsiębiorstwa poszukujące bezkompromisowej niezawodności i ochrony mienia.",
+              "We offer top-class closed-circuit television (CCTV) systems and advanced camera monitoring for companies, offices, corporations, warehouses, production plants, and logistics centers. Our solutions include high-resolution smart IP cameras with AI motion detection, facial recognition, and license plate reading. We guarantee a stable and secure online preview on mobile devices from anywhere in the world. We serve large companies and enterprises seeking uncompromising reliability and property protection.",
+              "Nabízíme špičkové kamerové systémy (CCTV) a pokročilý kamerový monitoring pro firmy, kanceláře, korporace, sklady, výrobní závody a logistická centra. Naše řešení zahrnují chytré IP kamery s vysokým rozlišením, detekcí pohybu AI, rozpoznáváním obličejů a čtením registračních značek. Garantujeme stabilní a bezpečný online náhled na mobilních zařízeních odkudkoli na světě. Obsluhujeme velké společnosti a podniky hledající nekompromisní spolehlivost a ochranu majetku."
+            )}
+          </p>
+        </div>
+
+        <div>
+          <h3>{t("Zabezpieczenie i monitoring placów budowy oraz terenów przemysłowych", "Security and Monitoring of Construction Sites and Industrial Areas", "Zabezpečení a monitoring stavenišť a průmyslových areálů")}</h3>
+          <p>
+            {t(
+              "Specjalizujemy się w szybkim i profesjonalnym zabezpieczaniu terenów inwestycyjnych oraz placów budowy. Monitoring placów budowy pozwala na skuteczne zapobieganie kradzieżom materiałów budowlanych, maszyn oraz aktom wandalizmu. Oferujemy bezprzewodowe systemy kamer z zasilaniem solarnym (LTE/WiFi), które nie wymagają stałego przyłącza elektrycznego. Całodobowy nadzór i natychmiastowe alerty o naruszeniu strefy bezpieczeństwa gwarantują pełną ochronę inwestycji budowlanych.",
+              "We specialize in rapid and professional security setup for investment areas and construction sites. Construction site monitoring allows for effective prevention of building materials, machinery theft, and vandalism. We offer wireless camera systems with solar power (LTE/WiFi) that do not require a permanent electrical connection. Round-the-clock surveillance and instant security breach alerts guarantee full protection of construction investments.",
+              "Specializujeme se na rychlé a profesionální zabezpečení investičních areálů a stavenišť. Monitorování staveniště umožňuje účinnou prevenci krádeží stavebního materiálu, strojů a vandalismu. Nabízíme bezdrátové kamerové systémy se solárním napájením (LTE/WiFi), které nevyžadují trvalé elektrické připojení. Nepřetržitý dohled a okamžitá upozornění na narušení bezpečnosti zaručují plnou ochranu stavebních investic."
+            )}
+          </p>
+        </div>
+
+        <div>
+          <h3>{t("Zaawansowane systemy alarmowe dla firm (SSWiN)", "Advanced Alarm Systems for Businesses (SSWiN)", "Pokročilé poplašné systémy pro firmy (SSWiN)")}</h3>
+          <p>
+            {t(
+              "Projektujemy i montujemy certyfikowane systemy alarmowe dla firm, korporacji oraz obiektów handlowo-usługowych. Bezprzewodowe i przewodowe instalacje alarmowe klasy premium skutecznie chronią mienie przedsiębiorstw przed włamaniem, zalaniem oraz pożarem. Integracja z systemami Smart Lock (inteligentne zamki i klamki) umożliwia pełną kontrolę dostępu pracowników oraz rejestrację czasu pracy w biurach i obiektach komercyjnych.",
+              "We design and install certified alarm systems for businesses, corporations, and commercial premises. Premium wireless and wired alarm systems effectively protect corporate property against burglary, water damage, and fire. Integration with Smart Lock systems (smart locks and handles) enables full control over employee access and records working hours in offices and commercial facilities.",
+              "Navrhujeme a instalujeme certifikované poplašné systémy pro firmy, korporace a obchodní prostory. Prémiové bezdrátové a drátové poplašné instalace účinně chrání firemní majetek před vloupáním, vytopením a požárem. Integrace se systémy Smart Lock (chytré zámky a kliky) umožňuje plnou kontrolu nad přístupem zaměstnanců a eviduje pracovní dobu v kancelářích a komerčních objektech."
+            )}
+          </p>
+        </div>
+
+        <div>
+          <h3>{t("Niezawodna sieć WiFi 6 i WiFi 7 dla biznesu i biur", "Reliable WiFi 6 & WiFi 7 Network for Business and Offices", "Spolehlivá WiFi 6 a WiFi 7 síť pro firmy a kanceláře")}</h3>
+          <p>
+            {t(
+              "Wdrażamy profesjonalne instalacje sieci bezprzewodowych DualBand WiFi 6 oraz DualBand WiFi 7 dla biur, hoteli, restauracji oraz dużych obiektów korporacyjnych. Zapewniamy stabilną łączność dla setek urządzeń jednocześnie, bezpieczne sieci gościnne (Guest WiFi) oraz dedykowane zabezpieczenia sieciowe klasy enterprise dla ochrony danych poufnych Twojego biznesu.",
+              "We implement professional DualBand WiFi 6 and DualBand WiFi 7 wireless network installations for offices, hotels, restaurants, and large corporate facilities. We provide stable connectivity for hundreds of devices simultaneously, secure guest networks (Guest WiFi), and dedicated enterprise-grade network security to protect your business's confidential data.",
+              "Implementujeme profesionální bezdrátové sítě DualBand WiFi 6 a DualBand WiFi 7 pro kanceláře, hotely, restaurace a velké korporátní objekty. Zajišťujeme stabilní konektivitu pro stovky zařízení současně, bezpečné sítě pro hosty (Guest WiFi) a vyhrazené síťové zabezpečení podnikové úrovně pro ochranu důvěrných dat vaší firmy."
+            )}
+          </p>
+        </div>
+
+        <div>
+          <h4>Słowa kluczowe SEO dla Google (Wyszukiwanie lokalne i ogólnopolskie):</h4>
+          <p>
+            monitoring dla firm, kamery przemysłowe, instalacja kamer dla firm, monitoring placu budowy Bielsko-Biała, alarmy dla firm Żywiec, zabezpieczenie budowy Kraków, systemy alarmowe dla korporacji Katowice, ochrona mienia przedsiębiorstw, kamery IP B2B, kontrola dostępu do biura, instalacja alarmu w firmie, bezprzewodowy monitoring magazynu, kamery solarne LTE, profesjonalny montaż monitoringu Śląsk, systemy bezpieczeństwa dla deweloperów, telewizja przemysłowa CCTV Śląsk, inteligentny budynek komercyjny.
+          </p>
+        </div>
+      </section>
+
       {/* Legal Modal Component */}
       {activeLegalModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/65 backdrop-blur-xs animate-in fade-in duration-200">
