@@ -51,7 +51,7 @@ export default function CrmDashboard({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin" || password === "admin123" || password === "dream2026") {
+    if (password === "QWEasd123!@") {
       setIsAuth(true);
       setAuthError("");
       localStorage.setItem("crm_authenticated", "true");
@@ -500,7 +500,7 @@ export default function CrmDashboard({
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Wpisz np. admin"
+                  placeholder="Wpisz klucz dostępu..."
                   className="w-full bg-zinc-850 border border-zinc-750 rounded-xl py-3 px-10 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
                 />
                 <Lock className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3.5" />
