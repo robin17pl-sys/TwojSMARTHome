@@ -28,13 +28,25 @@ import {
   MapPin,
   Wrench,
   Wifi,
-  X
+  X,
+  Trash2,
+  Edit,
+  Filter,
+  Download,
+  Search,
+  ShieldCheck,
+  LogOut,
+  Database,
+  TrendingUp,
+  Briefcase,
+  FileText
 } from "lucide-react";
 import {
   SmartHomeHeaderLogo,
   SmartHomeFullLogo,
   SmartHomeEmblem
 } from "./components/SmartHomeLogo";
+import CrmDashboard from "./components/CrmDashboard";
 
 interface Review {
   id: number;
@@ -72,6 +84,119 @@ const INITIAL_REVIEWS: Review[] = [
   }
 ];
 
+export interface CRMOrder {
+  id: string;
+  date: string;
+  fullname: string;
+  email: string;
+  phone: string;
+  address: string;
+  itemsOrdered: Array<{ name: string; qty: number; price: number }>;
+  finalTotalPrice: number;
+  status: "new" | "in_progress" | "completed" | "cancelled";
+  notes?: string;
+}
+
+export interface CRMInquiry {
+  id: string;
+  date: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+  status: "new" | "in_progress" | "completed" | "cancelled";
+  notes?: string;
+}
+
+const SEED_CRM_ORDERS: CRMOrder[] = [
+  {
+    id: "SMART-748291",
+    date: "24.06.2026",
+    fullname: "Janusz Kowalski (Kowalski Sp. z o.o.)",
+    email: "j.kowalski@kowalski-transport.pl",
+    phone: "602 123 456",
+    address: "ul. Przemysłowa 12, 43-300 Bielsko-Biała",
+    itemsOrdered: [
+      { name: "Montaż Twój SMART Home", qty: 6, price: 1194 },
+      { name: "Kamera Bezprzewodowa SMART Home Cam (Dual)", qty: 4, price: 796 },
+      { name: "Zamek Smart Lock Twój SMART Home Lock", qty: 2, price: 798 },
+      { name: "Czujnik Zalania / Dymu Twój SMART Home", qty: 2, price: 258 },
+      { name: "Aktualizacja WiFi do DualBand WiFi 7 + Konfiguracja", qty: 1, price: 449 },
+      { name: "Profesjonalny montaż i konfiguracja (15 urządzeń)", qty: 1, price: 490 }
+    ],
+    finalTotalPrice: 3985,
+    status: "in_progress",
+    notes: "Firma transportowa. Zabezpieczenie placu przeładunkowego i głównego biura. Wymagana faktura VAT. Montaż umówiony na najbliższy wtorek o 9:00."
+  },
+  {
+    id: "SMART-938210",
+    date: "25.06.2026",
+    fullname: "Mariusz Nowak (Nowak Budownictwo)",
+    email: "m.nowak@nowak-budownictwo.pl",
+    phone: "512 888 999",
+    address: "ul. Widokowa 5, 34-300 Żywiec",
+    itemsOrdered: [
+      { name: "Montaż Twój SMART Home", qty: 4, price: 796 },
+      { name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: 4, price: 596 },
+      { name: "System Alarmowy Twój SMART Home Alarm (Wersja Zaawansowana)", qty: 1, price: 899 },
+      { name: "Profesjonalny montaż i konfiguracja (9 urządzeń)", qty: 1, price: 390 }
+    ],
+    finalTotalPrice: 2681,
+    status: "new",
+    notes: "Dla nowego placu budowy domów jednorodzinnych w Żywcu. Szybki montaż kamer bezprzewodowych na słupach tymczasowych. Sprawdzić zasięg LTE."
+  },
+  {
+    id: "SMART-103942",
+    date: "20.06.2026",
+    fullname: "Anna Zielińska",
+    email: "anna.zielinska@interia.pl",
+    phone: "792 555 444",
+    address: "Al. Pokoju 14, 31-564 Kraków",
+    itemsOrdered: [
+      { name: "Montaż Twój SMART Home", qty: 2, price: 398 },
+      { name: "Kamera Bezprzewodowa SMART Home Cam (Singiel)", qty: 2, price: 298 },
+      { name: "Zamek Smart Lock Twój SMART Home Lock", qty: 1, price: 399 },
+      { name: "Profesjonalny montaż i konfiguracja (5 urządzeń)", qty: 1, price: 190 }
+    ],
+    finalTotalPrice: 1285,
+    status: "completed",
+    notes: "Montaż wykonany bez problemów. Klientka zachwycona funkcją otwierania drzwi smartfonem oraz kodami dostępu dla ekipy remontowej. Opłacone gotówką."
+  }
+];
+
+const SEED_CRM_INQUIRIES: CRMInquiry[] = [
+  {
+    id: "INQ-481920",
+    date: "26.06.2026",
+    name: "Tomasz Mazur (Mazur Logistics Sp. z o.o.)",
+    email: "t.mazur@mazur-logistics.pl",
+    phone: "501 234 567",
+    message: "Dzień dobry, poszukujemy profesjonalnego rozwiązania do monitorowania nowo powstającego centrum logistycznego w Katowicach (hala 4000m2 + parking zewnętrzny). Interesuje nas monitoring kamer IP z detekcją AI oraz system alarmowy połączony z kontrolą dostępu na klamki Smart. Proszę o kontakt w celu umówienia darmowego audytu na miejscu.",
+    status: "new",
+    notes: "Potencjalnie bardzo duży klient korporacyjny. Zadzwonić pilnie w poniedziałek rano i zaproponować spotkanie z darmowym audytem mienia."
+  },
+  {
+    id: "INQ-294012",
+    date: "23.06.2026",
+    name: "Katarzyna Wiśniewska",
+    email: "k.wisniewska@gmail.com",
+    phone: "602 987 654",
+    message: "Chciałabym zabezpieczyć swój dom jednorodzinny w Żywcu. Zależy mi na 3 kamerach zewnętrznych oraz czujnikach zalania/dymu w kotłowni i kuchni. Czy montaż jest całkowicie bezinwazyjny? Ile czasu trwa instalacja i czy nauczą mnie Państwo obsługi aplikacji na telefonie?",
+    status: "in_progress",
+    notes: "Rozmawiałem telefonicznie. Klientka obawia się wiercenia. Przekonana o bezprzewodowości i darmowej aplikacji. Montaż zaplanowany wstępnie na czwartek za tydzień."
+  },
+  {
+    id: "INQ-182930",
+    date: "18.06.2026",
+    name: "Piotr Woźniak (Woźniak Developer)",
+    email: "biuro@wozniak-developer.pl",
+    phone: "733 445 556",
+    message: "Szukam firmy do stałej współpracy przy zabezpieczaniu placów budowy na terenie Małopolski i Śląska. Obecnie startujemy z 3 nowymi osiedlami w Krakowie i Bielsku. Potrzebujemy stabilnego monitoringu kamer LTE na zasilaniu solarnym. Proszę o przesłanie cennika B2B.",
+    status: "completed",
+    notes: "Nawiązano stałą współpracę. Pierwsze osiedle już monitorowane i zabezpieczone (kamery obrotowe + alarm dymu). Płatności na czas, super kontakt."
+  }
+];
+
 export default function App() {
   const [lang, setLang] = useState<"PL" | "ENG" | "CZ">("PL");
 
@@ -98,7 +223,55 @@ export default function App() {
   // Booking Flow Steps
   // 'config' | 'checkout' | 'success'
   const [checkoutStep, setCheckoutStep] = useState<"config" | "checkout" | "success">("config");
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [currentPath, setCurrentPath] = useState(() => {
+    if (
+      window.location.pathname === "/crm" ||
+      window.location.search.includes("crm") ||
+      window.location.hash.includes("crm") ||
+      window.location.search.includes("admin") ||
+      window.location.hash.includes("admin")
+    ) {
+      return "/crm";
+    }
+    return window.location.pathname;
+  });
+  
+  // CRM state & local storage integration
+  const [crmOrders, setCrmOrders] = useState<CRMOrder[]>([]);
+  const [crmInquiries, setCrmInquiries] = useState<CRMInquiry[]>([]);
+  const [isCrmAuthenticated, setIsCrmAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem("crm_authenticated") === "true";
+  });
+
+  // Load CRM data from localStorage or seed
+  useEffect(() => {
+    const localOrders = localStorage.getItem("crm_orders");
+    if (localOrders) {
+      setCrmOrders(JSON.parse(localOrders));
+    } else {
+      localStorage.setItem("crm_orders", JSON.stringify(SEED_CRM_ORDERS));
+      setCrmOrders(SEED_CRM_ORDERS);
+    }
+
+    const localInquiries = localStorage.getItem("crm_inquiries");
+    if (localInquiries) {
+      setCrmInquiries(JSON.parse(localInquiries));
+    } else {
+      localStorage.setItem("crm_inquiries", JSON.stringify(SEED_CRM_INQUIRIES));
+      setCrmInquiries(SEED_CRM_INQUIRIES);
+    }
+  }, []);
+
+  // Update CRM lists in localStorage
+  const updateCrmOrders = (newOrders: CRMOrder[]) => {
+    setCrmOrders(newOrders);
+    localStorage.setItem("crm_orders", JSON.stringify(newOrders));
+  };
+
+  const updateCrmInquiries = (newInquiries: CRMInquiry[]) => {
+    setCrmInquiries(newInquiries);
+    localStorage.setItem("crm_inquiries", JSON.stringify(newInquiries));
+  };
 
   useEffect(() => {
     const handlePopState = () => {
@@ -305,6 +478,20 @@ export default function App() {
       deliveryDate: estDeliveryDate.toLocaleDateString("pl-PL")
     });
 
+    const newCRMOrder: CRMOrder = {
+      id: randomOrderId,
+      date: new Date().toLocaleDateString("pl-PL"),
+      fullname,
+      email,
+      phone,
+      address: `${street}, ${postcode} ${city}`,
+      itemsOrdered,
+      finalTotalPrice,
+      status: "new",
+      notes: "Złożone automatycznie przez formularz konfiguratora."
+    };
+    updateCrmOrders([newCRMOrder, ...crmOrders]);
+
     setIsSubmittingOrder(false);
     setCheckoutStep("success");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -367,6 +554,18 @@ export default function App() {
       });
 
       if (response.ok) {
+        const newInquiry: CRMInquiry = {
+          id: "INQ-" + Math.floor(100000 + Math.random() * 900000),
+          date: new Date().toLocaleDateString("pl-PL"),
+          name: contactName,
+          email: contactEmail,
+          phone: contactPhone || undefined,
+          message: contactMessage,
+          status: "new",
+          notes: "Wysłane przez formularz kontaktowy na stronie."
+        };
+        updateCrmInquiries([newInquiry, ...crmInquiries]);
+
         setContactSuccessMsg("Dziękujemy! Twoja wiadomość została pomyślnie wysłana bezpośrednio na adres dreamstudiopl@gmail.com. Skontaktujemy się z Tobą wkrótce!");
         setContactName("");
         setContactEmail("");
@@ -402,6 +601,18 @@ export default function App() {
     setPostcode("");
     setCity("");
   };
+
+  if (currentPath === "/crm") {
+    return (
+      <CrmDashboard
+        crmOrders={crmOrders}
+        crmInquiries={crmInquiries}
+        updateCrmOrders={updateCrmOrders}
+        updateCrmInquiries={updateCrmInquiries}
+        onBackToHome={() => navigateTo("/")}
+      />
+    );
+  }
 
   return (
     <div className="bg-zinc-50 min-h-screen font-sans text-zinc-900 selection:bg-zinc-900 selection:text-white">
@@ -1807,7 +2018,11 @@ export default function App() {
               <span className="text-[10px] text-zinc-300">|</span>
               <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Original IoT kit</span>
             </div>
-            <p className="text-zinc-450 leading-relaxed">
+            <p 
+              onDoubleClick={() => navigateTo("/crm")}
+              className="text-zinc-450 leading-relaxed select-none cursor-default"
+              title="© 2026 Twój SMART Home"
+            >
               © 2026 Twój SMART Home. Wszystkie prawa zastrzeżone. Bezpieczne i inteligentne systemy dla każdego domu.
             </p>
           </div>
